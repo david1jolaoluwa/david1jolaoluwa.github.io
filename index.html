@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aiming High Tutors</title>
+
+  <!--
+  =====================================================================
+  FONTS
+  - "Nunito" is used for headings — rounded, warm and friendly
+  - "Lato" is used for body text — clean, legible and approachable
+  You can change these by swapping the names in the @import line below
+  and updating the font-family values in the :root section.
+  =====================================================================
+  -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Lato:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /*
+    =====================================================================
+    COLOUR & FONT SETTINGS — EASY TO CHANGE
+    Everything below in the :root block controls the site's colours and
+    fonts. Change a value here and it updates across the whole site.
+
+    HOW TO CHANGE COLOURS:
+    Replace the colour code (e.g. #F7941D) with any colour you like.
+    You can find colour codes at: https://htmlcolorcodes.com/
+    =====================================================================
+    */
+    :root {
+      --color-dark:       #2B2B2B;   /* Deep charcoal — used for headings & navbar */
+      --color-mid:        #5C3D1E;   /* Warm brown — used for accents & card borders */
+      --color-accent:     #F7941D;   /* Brand orange — used for highlights & buttons */
+      --color-light-bg:   #FEF3E8;   /* Peach cream — used for alternating sections */
+      --color-white:      #FFFAF5;   /* Warm off-white — used for page background */
+      --color-text:       #3E3028;   /* Deep warm brown — main body text */
+      --color-muted:      #8a7060;   /* Muted tan — lighter text for subtitles */
+
+      --font-heading: 'Nunito', Georgia, sans-serif;
+      --font-body:    'Lato', Arial, sans-serif;
+
+      --radius: 12px;               /* Rounded corners on cards/buttons */
+      --max-width: 1100px;          /* Maximum page width */
+    }
+
+    /* =====================================================================
+    RESET — Clears browser default spacing so the site looks consistent
+    ===================================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--color-text);
+      background: var(--color-white);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* =====================================================================
+    LAYOUT HELPERS
+    .container   — centres content and limits its width
+    .section     — adds top/bottom spacing to each page section
+    ===================================================================== */
+    .container {
+      width: 90%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 80px 0;
+    }
+
+    .section--cream {
+      background: var(--color-light-bg);
+    }
+
+    /* =====================================================================
+    TYPOGRAPHY
+    ===================================================================== */
+    h1, h2, h3 {
+      font-family: var(--font-heading);
+      color: var(--color-dark);
+      line-height: 1.25;
+    }
+
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
+    h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 16px; }
+    h3 { font-size: 1.25rem; margin-bottom: 8px; }
+
+    p  { margin-bottom: 16px; }
+
+    .section-label {
+      /* Small label shown above section headings */
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 10px;
+    }
+
+    .section-intro {
+      font-size: 1.1rem;
+      color: var(--color-muted);
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    /* =====================================================================
+    NAVIGATION BAR
+    ===================================================================== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-dark);
+      padding: 16px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .navbar__logo {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      color: var(--color-white);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+
+    .navbar__logo span {
+      color: var(--color-accent);
+    }
+
+    .navbar__links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .navbar__links a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .navbar__links a:hover {
+      color: var(--color-accent);
+    }
+
+    /* =====================================================================
+    BUTTONS
+    .btn          — gold filled button (main call to action)
+    .btn--outline — outline button (secondary action)
+    ===================================================================== */
+    .btn {
+      display: inline-block;
+      background: var(--color-accent);
+      color: var(--color-dark);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 14px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      box-shadow: 0 4px 16px rgba(247,148,29,0.35);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(247,148,29,0.45);
+      background: #f9a83e;
+    }
+
+    .btn--outline {
+      background: transparent;
+      color: var(--color-white);
+      border: 2px solid var(--color-white);
+      box-shadow: none;
+    }
+
+    .btn--outline:hover {
+      background: var(--color-white);
+      color: var(--color-dark);
+    }
+
+    /* =====================================================================
+    HERO SECTION
+    The large banner at the top of the page.
+
+    HOW TO ADD A BACKGROUND IMAGE:
+    Replace the gradient in .hero with:
+      background: url('YOUR-IMAGE-URL-HERE') center/cover no-repeat;
+    Then add:  background-blend-mode: multiply;
+    ===================================================================== */
+    .hero {
+      background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-mid) 100%);
+      color: var(--color-white);
+      padding: 100px 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative circle shapes in the hero background */
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.07;
+      background: var(--color-white);
+    }
+    .hero::before { width: 500px; height: 500px; top: -180px; left: -120px; }
+    .hero::after  { width: 350px; height: 350px; bottom: -100px; right: -60px; }
+
+    .hero__tagline {
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      color: var(--color-white);
+      margin-bottom: 20px;
+    }
+
+    .hero__sub {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+
+    .hero__cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* =====================================================================
+    TRUST BAR
+    A row of short trust signals below the hero.
+    ===================================================================== */
+    .trust-bar {
+      background: var(--color-white);
+      border-bottom: 1px solid #e8e8e8;
+      padding: 20px 0;
+    }
+
+    .trust-bar__list {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .trust-bar__list li {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-mid);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trust-bar__list li::before {
+      content: '✓';
+      background: var(--color-accent);
+      color: var(--color-dark);
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* =====================================================================
+    ABOUT SECTION
+    Uses a two-column layout on desktop: image left, text right.
+    ===================================================================== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    /*
+    ABOUT IMAGE PLACEHOLDER
+    To add your photo: replace background with url('your-photo.jpg')
+    and set background-size: cover; background-position: center;
+    */
+    .about__image-box {
+      url('/User/dj/Downloads/Aiming v3.0/assests/teachingassetelijah.jpg'):
+      border-radius: var(--radius);
+      min-height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about__image-box img {
+      /* If you add an <img> tag inside this box, these styles will apply */
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius);
+    }
+
+    .about__image-placeholder {
+      /* This text is shown when no image is linked — remove once you add a real image */
+      font-size: 0.85rem;
+      color: var(--color-mid);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .about__stat-row {
+      display: flex;
+      gap: 28px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: var(--color-light-bg);
+      border-radius: var(--radius);
+      padding: 18px 24px;
+      flex: 1;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .stat-box__number {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      color: var(--color-mid);
+      display: block;
+    }
+
+    .stat-box__label {
+      font-size: 0.8rem;
+      color: var(--color-muted);
+      font-weight: 500;
+    }
+
+    /* =====================================================================
+    SERVICES CARDS (Face-to-Face & Online)
+    ===================================================================== */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
+    .service-card {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      border-top: 4px solid var(--color-accent);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 36px rgba(92,61,30,0.13);
+    }
+
+    /*
+    SERVICE ICON/IMAGE AREA
+    To add an image: place an <img> tag inside .service-card__icon
+    The placeholder emoji will disappear once real content is added.
+    */
+    .service-card__icon {
+      font-size: 2.4rem;
+      margin-bottom: 20px;
+    }
+
+    .service-card ul {
+      list-style: none;
+      margin-top: 16px;
+    }
+
+    .service-card ul li {
+      padding: 6px 0;
+      padding-left: 22px;
+      position: relative;
+      font-size: 0.9rem;
+      color: var(--color-muted);
+    }
+
+    .service-card ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+
+    /* =====================================================================
+    REVIEWS / TESTIMONIALS
+    ===================================================================== */
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
+    .review-card {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      position: relative;
+    }
+
+    .review-card__quote-mark {
+      font-family: var(--font-heading);
+      font-size: 5rem;
+      color: var(--color-accent);
+      opacity: 0.25;
+      line-height: 1;
+      position: absolute;
+      top: 10px;
+      left: 20px;
+    }
+
+    .review-card__text {
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--color-text);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .review-card__name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-mid);
+    }
+
+    .review-card__stars {
+      color: var(--color-accent);
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    /* Featured review — spans both columns on wide screens */
+    .review-card--featured {
+      background: linear-gradient(135deg, var(--color-dark), var(--color-mid));
+      color: var(--color-white);
+    }
+
+    .review-card--featured .review-card__text,
+    .review-card--featured .review-card__name {
+      color: var(--color-white);
+    }
+
+    /* =====================================================================
+    CTA BANNER — "Book a Free Consultation"
+    ===================================================================== */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--color-mid), var(--color-dark));
+      color: var(--color-white);
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-banner h2 {
+      color: var(--color-white);
+      margin-bottom: 12px;
+    }
+
+    .cta-banner p {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+
+    /* =====================================================================
+    CONTACT SECTION
+    ===================================================================== */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    .contact-info__item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .contact-info__icon {
+      width: 44px; height: 44px;
+      background: var(--color-light-bg);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .contact-info__label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+      margin-bottom: 4px;
+    }
+
+    .contact-info__value {
+      font-size: 1rem;
+      color: var(--color-dark);
+      font-weight: 500;
+    }
+
+    /* =====================================================================
+    CONTACT FORM
+    Fields are labelled clearly. Change placeholder text to suit.
+    ===================================================================== */
+    .form__group {
+      margin-bottom: 20px;
+    }
+
+    .form__label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--color-dark);
+    }
+
+    .form__input,
+    .form__textarea,
+    .form__select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #dde3e8;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--color-text);
+      background: var(--color-white);
+      transition: border-color 0.2s;
+    }
+
+    .form__input:focus,
+    .form__textarea:focus,
+    .form__select:focus {
+      outline: none;
+      border-color: var(--color-mid);
+      box-shadow: 0 0 0 3px rgba(44,83,100,0.1);
+    }
+
+    .form__textarea { resize: vertical; min-height: 120px; }
+
+    /* =====================================================================
+    BLOG PREVIEW CARDS
+    ===================================================================== */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
+    .blog-card {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transition: transform 0.25s;
+    }
+
+    .blog-card:hover { transform: translateY(-5px); }
+
+    /*
+    BLOG IMAGE PLACEHOLDER
+    To add a real image: set background: url('your-image.jpg') center/cover no-repeat;
+    on the .blog-card__image element below.
+    */
+    .blog-card__image {
+      height: 180px;
+      background: linear-gradient(135deg, #c9dde8, #a8c4d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-mid);
+      font-size: 0.8rem;
+    }
+
+    .blog-card__body {
+      padding: 24px;
+    }
+
+    .blog-card__date {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      margin-bottom: 8px;
+    }
+
+    .blog-card__title {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      color: var(--color-dark);
+      margin-bottom: 10px;
+    }
+
+    .blog-card__excerpt {
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      margin-bottom: 16px;
+    }
+
+    .blog-card__link {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-mid);
+      text-decoration: none;
+    }
+
+    .blog-card__link:hover { text-decoration: underline; }
+
+    /* =====================================================================
+    FOOTER
+    ===================================================================== */
+    .footer {
+      background: var(--color-dark);
+      color: rgba(255,255,255,0.7);
+      padding: 48px 0 24px;
+    }
+
+    .footer__inner {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .footer__brand { flex: 2; min-width: 220px; }
+    .footer__col   { flex: 1; min-width: 140px; }
+
+    .footer__logo {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      color: var(--color-white);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .footer__logo span { color: var(--color-accent); }
+
+    .footer h4 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-white);
+      margin-bottom: 14px;
+    }
+
+    .footer__links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer__links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+
+    .footer__links a:hover { color: var(--color-accent); }
+
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* =====================================================================
+    RESPONSIVE — MOBILE ADJUSTMENTS
+    On smaller screens, multi-column layouts switch to single column.
+    ===================================================================== */
+    @media (max-width: 768px) {
+      .section { padding: 60px 0; }
+
+      .about-grid,
+      .contact-grid { grid-template-columns: 1fr; }
+
+      .about__image-box { min-height: 240px; }
+
+      .navbar__inner { justify-content: center; }
+
+      .hero { padding: 70px 0 60px; }
+    }
+
+    /* =====================================================================
+    SMOOTH SCROLL OFFSET — accounts for sticky navbar height
+    ===================================================================== */
+    section[id] { scroll-margin-top: 68px; }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ===================================================================
+  NAVIGATION BAR
+  To change the company name: edit the text inside .navbar__logo
+  To add or remove menu links: copy or delete an <li> inside .navbar__links
+  =================================================================== -->
+  <nav class="navbar">
+    <div class="container navbar__inner">
+
+      <!-- COMPANY NAME — change this text -->
+      <a href="#home" class="navbar__logo">Aiming <span>High</span> Tutors</a>
+
+      <ul class="navbar__links">
+        <!-- Add or remove links here. href="#id" scrolls to the matching section -->
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#services">Tuition</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+    </div>
+  </nav>
+
+
+  <!-- ===================================================================
+  HERO SECTION — the first thing visitors see
+  Change the headline, subheading, and button text below.
+  =================================================================== -->
+  <section id="home" class="hero">
+    <div class="container">
+
+      <!-- Small label above the headline — change this text -->
+      <p class="hero__tagline">KS2 · GCSE · SATs</p>
+
+      <!-- Main headline — change this text -->
+      <h1>Every Child Deserves<br>to Aim High</h1>
+
+      <!-- Subheading — change this text -->
+      <p class="hero__sub">
+        Patient, personalised tuition that builds confidence alongside
+        academic results — both in person and online.
+      </p>
+
+      <!-- Call-to-action buttons — change the text and links as needed -->
+      <div class="hero__cta-group">
+        <a href="#contact" class="btn">Book a Free Consultation</a>
+        <a href="#services" class="btn btn--outline">Explore Our Tuition</a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  TRUST BAR — short reassuring facts below the hero
+  Change or add items inside the <ul> list.
+  =================================================================== -->
+  <div class="trust-bar">
+    <div class="container">
+      <ul class="trust-bar__list">
+        <li>Qualified Science Teacher</li>
+        <li>Former AQA Examiner</li>
+        <li>Specialist SEN Experience</li>
+        <li>Face-to-Face &amp; Online</li>
+        <li>Free Taster Session</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- ===================================================================
+  ABOUT SECTION
+  Left side: image placeholder — see comments below to add a real photo.
+  Right side: text about the company.
+  =================================================================== -->
+  <section id="about" class="section">
+    <div class="container">
+      <div class="about-grid">
+
+        <!-- IMAGE SIDE
+        HOW TO ADD A PHOTO:
+        1. Upload your image somewhere (e.g. Google Drive or your website host)
+        2. Replace the entire .about__image-box div content with:
+           <img src="YOUR-IMAGE-URL" alt="Description of image" />
+        -->
+        <div class="about__image-box">
+          <p class="about__image-placeholder">
+            📷 Add your photo here<br>
+            <small>(Replace this box with an &lt;img&gt; tag)</small>
+          </p>
+        </div>
+
+        <!-- TEXT SIDE — change any of the text below -->
+        <div class="about__text">
+          <span class="section-label">Our Story</span>
+          <h2>Built on Care,<br>Driven by Results</h2>
+          <p>
+            Aiming High Tutors began with a simple but deeply personal commitment:
+            to support children with patience, care, and teaching that builds confidence
+            as well as academic success. In the early days, this meant travelling from
+            home to home to deliver one-to-one tuition—often with my baby daughter
+            strapped to my back.
+          </p>
+          <p>
+            Today, parents trust Aiming High Tutors for high standards, personalised
+            support, and a nurturing learning environment where strong foundations are
+            built and every child is encouraged to achieve their full potential.
+          </p>
+          <p>
+            Our lead tutor is a qualified Science teacher and former AQA GCSE Science
+            examiner with an MSc in Educational Leadership and Management — meaning
+            we understand not just how to teach, but how exams are marked and how
+            individual children learn best.
+          </p>
+
+          <!-- STATS ROW — change the numbers and labels as needed -->
+          <div class="about__stat-row">
+            <div class="stat-box">
+              <span class="stat-box__number">KS2–5</span>
+              <span class="stat-box__label">Age Range</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box__number">1–1</span>
+              <span class="stat-box__label">Personalised</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box__number">100%</span>
+              <span class="stat-box__label">Dedicated</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  SERVICES SECTION — Face-to-Face and Online tuition cards
+  To add a new service: copy one .service-card block and paste it below.
+  =================================================================== -->
+  <section id="services" class="section section--cream">
+    <div class="container">
+
+      <span class="section-label">How We Work</span>
+      <h2>Choose the Tuition That Suits You</h2>
+      <p class="section-intro">
+        Whether your child learns better in person or from the comfort of home,
+        we offer the same high-quality, individually tailored support.
+      </p>
+
+      <div class="services-grid">
+
+        <!-- SERVICE CARD 1 — Face-to-Face -->
+        <div class="service-card">
+          <!-- ICON — swap the emoji for an <img> tag if you have an icon/image -->
+          <div class="service-card__icon">🏫</div>
+          <h3>Face-to-Face Tuition</h3>
+          <p>
+            High-quality, personalised academic support delivered in a calm,
+            structured, and supportive environment. Students gain the confidence
+            to ask questions, practise key skills, and make consistent progress.
+          </p>
+          <!-- Bullet points — add or remove <li> items freely -->
+          <ul>
+            <li>SATs and GCSE preparation</li>
+            <li>Immediate feedback in every session</li>
+            <li>Practical exam strategies</li>
+            <li>Individual strengths &amp; gaps addressed</li>
+          </ul>
+        </div>
+
+        <!-- SERVICE CARD 2 — Online -->
+        <div class="service-card">
+          <div class="service-card__icon">💻</div>
+          <h3>Online Tuition</h3>
+          <p>
+            Flexible, engaging live sessions combining expert teaching with
+            the convenience of learning from home. The same high standards,
+            personalised guidance, and progress-focused teaching as our
+            face-to-face provision.
+          </p>
+          <ul>
+            <li>Live interactive sessions</li>
+            <li>Learn from anywhere in the UK</li>
+            <li>Structured and easy to follow</li>
+            <li>Builds independence and confidence</li>
+          </ul>
+        </div>
+
+        <!-- SERVICE CARD 3 — Free Consultation (promotional card) -->
+        <div class="service-card">
+          <div class="service-card__icon">🎯</div>
+          <h3>Free Taster Session</h3>
+          <p>
+            Not sure where to start? Book a free consultation or taster session
+            so we can understand your child's needs, answer your questions,
+            and show you exactly how we can help — with no obligation.
+          </p>
+          <ul>
+            <li>No commitment required</li>
+            <li>Tailored to your child's year group</li>
+            <li>Honest assessment of where they are</li>
+            <li>Clear plan for moving forward</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  REVIEWS SECTION
+  Add or change quotes by editing the .review-card blocks below.
+  =================================================================== -->
+  <section id="reviews" class="section">
+    <div class="container">
+
+      <span class="section-label">What Parents &amp; Students Say</span>
+      <h2>Real Results, Real Stories</h2>
+      <p class="section-intro">
+        The best measure of our work is the confidence and progress our
+        students achieve. Here is what some of them have shared with us.
+      </p>
+
+      <div class="reviews-grid">
+
+        <!-- FEATURED REVIEW — Chloe's story (dark card) -->
+        <div class="review-card review-card--featured">
+          <div class="review-card__quote-mark">"</div>
+          <div class="review-card__stars">★★★★★</div>
+          <p class="review-card__text">
+            Thank you for the tutoring — just thought I'd let you know... I passed Maths! 🎉😆
+          </p>
+          <!-- Change the name below -->
+          <p class="review-card__name">Chloe — projected not to pass her Maths GCSE</p>
+        </div>
+
+        <!-- REVIEW 2 -->
+        <div class="review-card">
+          <div class="review-card__quote-mark">"</div>
+          <div class="review-card__stars">★★★★★</div>
+          <p class="review-card__text">
+            Good evening ma, I got my science marks back. I got a 6 in Biology,
+            6 in Physics and 7 in Chemistry!
+          </p>
+          <p class="review-card__name">GCSE Science Student</p>
+        </div>
+
+        <!-- REVIEW 3 — placeholder, replace with a real review -->
+        <div class="review-card">
+          <div class="review-card__quote-mark">"</div>
+          <div class="review-card__stars">★★★★★</div>
+          <p class="review-card__text">
+            My son was really struggling with confidence before his SATs. After just
+            a few sessions he was asking to do extra practice — I couldn't believe it.
+          </p>
+          <!-- Change the name below -->
+          <p class="review-card__name">Parent of a Year 6 student</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  CALL TO ACTION BANNER
+  A bold banner encouraging visitors to take action.
+  Change the heading, paragraph and button text freely.
+  =================================================================== -->
+  <section class="cta-banner">
+    <div class="container">
+      <h2>Ready to Help Your Child Aim Higher?</h2>
+      <p>
+        Book a free, no-obligation consultation today. We will listen,
+        assess where your child is, and put together a plan to help them
+        feel confident and prepared.
+      </p>
+      <a href="#contact" class="btn">Get in Touch Today</a>
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  BLOG SECTION — preview cards for blog posts
+  To add a post: copy one .blog-card block and update the text/link.
+  To remove the whole section: delete everything between the <section> tags.
+  =================================================================== -->
+  <section id="blog" class="section section--cream">
+    <div class="container">
+
+      <span class="section-label">From the Blog</span>
+      <h2>Tips, Guides &amp; Advice</h2>
+      <p class="section-intro">
+        Practical advice for parents and students navigating exams,
+        revision, and building academic confidence.
+      </p>
+
+      <div class="blog-grid">
+
+        <!-- BLOG CARD 1
+        HOW TO ADD AN IMAGE:
+        Replace the .blog-card__image div content with an <img> tag,
+        or change the background to: url('your-image.jpg') center/cover no-repeat
+        -->
+        <div class="blog-card">
+          <div class="blog-card__image">
+            📷 Add blog image here
+          </div>
+          <div class="blog-card__body">
+            <p class="blog-card__date">Coming soon</p>
+            <p class="blog-card__title">How to Support Your Child Through GCSE Revision</p>
+            <p class="blog-card__excerpt">
+              Practical strategies for parents to create a positive revision
+              environment at home without adding to exam stress.
+            </p>
+            <!-- Change the href to point to your blog post URL -->
+            <a href="#" class="blog-card__link">Read more →</a>
+          </div>
+        </div>
+
+        <!-- BLOG CARD 2 -->
+        <div class="blog-card">
+          <div class="blog-card__image">
+            📷 Add blog image here
+          </div>
+          <div class="blog-card__body">
+            <p class="blog-card__date">Coming soon</p>
+            <p class="blog-card__title">Understanding SATs: A Parent's Guide</p>
+            <p class="blog-card__excerpt">
+              What to expect from KS2 SATs, how they are marked, and how
+              targeted tutoring can make a real difference.
+            </p>
+            <a href="#" class="blog-card__link">Read more →</a>
+          </div>
+        </div>
+
+        <!-- BLOG CARD 3 -->
+        <div class="blog-card">
+          <div class="blog-card__image">
+            📷 Add blog image here
+          </div>
+          <div class="blog-card__body">
+            <p class="blog-card__date">Coming soon</p>
+            <p class="blog-card__title">Building Confidence in Young Learners</p>
+            <p class="blog-card__excerpt">
+              Why academic confidence matters as much as grades, and the
+              simple things tutors and parents can do to nurture it.
+            </p>
+            <a href="#" class="blog-card__link">Read more →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  CONTACT SECTION
+  Left: contact information. Right: contact form.
+  Update the email, phone and location in the .contact-info__value spans.
+  =================================================================== -->
+  <section id="contact" class="section">
+    <div class="container">
+
+      <span class="section-label">Get in Touch</span>
+      <h2>Book Your Free Consultation</h2>
+      <p class="section-intro">
+        Fill in the form and we will be in touch within 24 hours to arrange a
+        free no-obligation call or taster session for your child.
+      </p>
+
+      <div class="contact-grid">
+
+        <!-- CONTACT DETAILS — update each .contact-info__value -->
+        <div class="contact-info">
+
+          <div class="contact-info__item">
+            <div class="contact-info__icon">📧</div>
+            <div>
+              <p class="contact-info__label">Email</p>
+              <!-- Change this email address -->
+              <p class="contact-info__value">hello@aiminghightutors.co.uk</p>
+            </div>
+          </div>
+
+          <div class="contact-info__item">
+            <div class="contact-info__icon">📞</div>
+            <div>
+              <p class="contact-info__label">Phone / WhatsApp</p>
+              <!-- Change this phone number -->
+              <p class="contact-info__value">07XXX XXX XXX</p>
+            </div>
+          </div>
+
+          <div class="contact-info__item">
+            <div class="contact-info__icon">📍</div>
+            <div>
+              <p class="contact-info__label">Location</p>
+              <!-- Change this location -->
+              <p class="contact-info__value">Face-to-face &amp; Online across the UK</p>
+            </div>
+          </div>
+
+          <div class="contact-info__item">
+            <div class="contact-info__icon">🕐</div>
+            <div>
+              <p class="contact-info__label">Hours</p>
+              <!-- Change these hours -->
+              <p class="contact-info__value">Mon–Fri: 3pm–8pm<br>Sat–Sun: 9am–6pm</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CONTACT FORM
+        NOTE FOR GOOGLE SITES:
+        This form captures information but does not send emails on its own.
+        To make it actually send messages, connect it to a free service like
+        Formspree (https://formspree.io) — just replace the action="#"
+        on the form tag with your Formspree URL.
+        -->
+        <div class="contact-form">
+          <form action="#" method="POST">
+
+            <!-- Name field -->
+            <div class="form__group">
+              <label class="form__label" for="name">Parent / Guardian Name *</label>
+              <input class="form__input" type="text" id="name" name="name"
+                     placeholder="e.g. Sarah Johnson" required />
+            </div>
+
+            <!-- Email field -->
+            <div class="form__group">
+              <label class="form__label" for="email">Email Address *</label>
+              <input class="form__input" type="email" id="email" name="email"
+                     placeholder="e.g. sarah@email.com" required />
+            </div>
+
+            <!-- Phone field -->
+            <div class="form__group">
+              <label class="form__label" for="phone">Phone Number</label>
+              <input class="form__input" type="tel" id="phone" name="phone"
+                     placeholder="e.g. 07XXX XXX XXX" />
+            </div>
+
+            <!-- Subject dropdown -->
+            <div class="form__group">
+              <label class="form__label" for="subject">What does your child need help with? *</label>
+              <select class="form__select" id="subject" name="subject" required>
+                <option value="" disabled selected>Please select…</option>
+                <!-- Add or remove options as needed -->
+                <option>KS2 / SATs — Maths</option>
+                <option>KS2 / SATs — English</option>
+                <option>GCSE Science</option>
+                <option>GCSE Maths</option>
+                <option>GCSE English</option>
+                <option>General study skills / confidence</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <!-- Message field -->
+            <div class="form__group">
+              <label class="form__label" for="message">Tell us a bit more (optional)</label>
+              <textarea class="form__textarea" id="message" name="message"
+                        placeholder="e.g. My daughter is in Year 10 and really struggling with Chemistry…"></textarea>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn" style="width:100%; text-align:center;">
+              Send Message &amp; Book Free Session
+            </button>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================================================================
+  FOOTER
+  Update the links and company details below.
+  =================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+
+        <!-- Brand column -->
+        <div class="footer__brand">
+          <span class="footer__logo">Aiming <span>High</span> Tutors</span>
+          <p>
+            Qualified, caring tutors helping students from KS2 to GCSE build
+            confidence and achieve their best results.
+          </p>
+        </div>
+
+        <!-- Navigation links column -->
+        <div class="footer__col">
+          <h4>Quick Links</h4>
+          <ul class="footer__links">
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Tuition</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Tuition subjects column -->
+        <div class="footer__col">
+          <h4>Subjects</h4>
+          <ul class="footer__links">
+            <!-- Change or add subjects here -->
+            <li><a href="#services">GCSE Science</a></li>
+            <li><a href="#services">GCSE Maths</a></li>
+            <li><a href="#services">KS2 SATs</a></li>
+            <li><a href="#services">11+ Preparation</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Copyright line — update the year and name as needed -->
+      <div class="footer__bottom">
+        <p>© 2025 Aiming High Tutors. All rights reserved.</p>
+      </div>
+
+    </div>
+  </footer>
+
+
+
+  <!-- ===================================================================
+  JAVASCRIPT — NAVIGATION & FORM SUBMISSION
+  This section handles two things:
+    1. Smooth scrolling — makes navbar links and buttons scroll to the
+       correct section. This method works inside Google Sites iframes
+       where normal #anchor links do not function.
+    2. Form submission — captures the booking form data and saves it
+       to a shared online database (JSONBin.io, free tier).
+  =================================================================== -->
+  <script>
+
+    /* ------------------------------------------------------------------
+    PART 1 — SMOOTH SCROLL
+    Finds every link that starts with "#" and makes it smoothly scroll
+    to the matching section. Works inside Google Sites iframes where
+    standard anchor links are blocked.
+    ------------------------------------------------------------------ */
+    document.addEventListener('DOMContentLoaded', function () {
+
+      var allLinks = document.querySelectorAll('a[href^="#"]');
+
+      allLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+
+          var targetId = this.getAttribute('href').replace('#', '');
+          var targetEl = document.getElementById(targetId);
+
+          if (targetEl) {
+            // Offset by navbar height so content is not hidden underneath it
+            var navHeight = document.querySelector('.navbar')
+              ? document.querySelector('.navbar').offsetHeight : 0;
+
+            var targetTop =
+              targetEl.getBoundingClientRect().top +
+              window.pageYOffset - navHeight - 10;
+
+            window.scrollTo({ top: targetTop, behavior: 'smooth' });
+          }
+        });
+      });
+
+    });
+
+
+    /* ------------------------------------------------------------------
+    PART 2 — FORM SUBMISSION TO DATABASE
+    Submits form data directly to JSONBin.io using a single POST request.
+    Each submission is saved as its own record — no read-then-write needed.
+    ------------------------------------------------------------------ */
+
+    // Your database credentials — already filled in
+    var BIN_ID  = '69fc9fb7250b1311c318f4fc';
+    var API_KEY = '$2a$10$Jucgng6nMjR4BA8qTPMscekyo7v3uJ53YOd0hXHoPVbo1/Gl7Z2gm';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var form = document.querySelector('.contact-form form');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Collect all form field values
+        var entry = {
+          timestamp: new Date().toISOString(),
+          name:      form.querySelector('#name').value,
+          email:     form.querySelector('#email').value,
+          phone:     form.querySelector('#phone').value,
+          subject:   form.querySelector('#subject').value,
+          message:   form.querySelector('#message').value
+        };
+
+        // Update button to show sending state
+        var btn = form.querySelector('button[type="submit"]');
+        var originalText = btn.textContent;
+        btn.textContent = 'Sending...';
+        btn.disabled = true;
+
+        // Read existing submissions first, then append and save
+        fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
+          method: 'GET',
+          headers: {
+            'X-Master-Key': API_KEY,
+            'X-Bin-Meta': 'false'
+          }
+        })
+        .then(function(res) {
+          if (!res.ok) {
+            throw new Error('Could not read bin. Status: ' + res.status);
+          }
+          return res.json();
+        })
+        .then(function(data) {
+          // Build updated submissions array
+          var existing = [];
+          if (data && Array.isArray(data.submissions)) {
+            existing = data.submissions;
+          }
+          existing.push(entry);
+
+          // Write updated array back to bin
+          return fetch('https://api.jsonbin.io/v3/b/' + BIN_ID, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Master-Key': API_KEY
+            },
+            body: JSON.stringify({ submissions: existing })
+          });
+        })
+        .then(function(res) {
+          if (!res.ok) {
+            throw new Error('Could not save submission. Status: ' + res.status);
+          }
+          // Show thank-you message
+          var firstName = entry.name.split(' ')[0];
+          form.innerHTML =
+            '<div style="text-align:center;padding:40px 20px;">' +
+            '<div style="font-size:3rem;margin-bottom:16px;">&#127881;</div>' +
+            '<h3 style="color:#2B2B2B;font-family:Nunito,sans-serif;margin-bottom:12px;">' +
+            'Thank you, ' + firstName + '!</h3>' +
+            '<p style="color:#8a7060;">We have received your message and will be in touch within 24 hours to arrange your free session.</p>' +
+            '</div>';
+        })
+        .catch(function(err) {
+          // Show a specific error message so the problem is easy to diagnose
+          console.error('Submission error:', err);
+          btn.textContent = originalText;
+          btn.disabled = false;
+          alert(
+            'Could not send your message.\n\n' +
+            'Error: ' + err.message + '\n\n' +
+            'Please screenshot this message and send it to the site administrator.'
+          );
+        });
+
+      });
+    });
+
+  <\/script>
+
+</body>
+</html>
+
