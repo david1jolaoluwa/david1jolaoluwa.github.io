@@ -1292,7 +1292,7 @@
        correct section. This method works inside Google Sites iframes
        where normal #anchor links do not function.
     2. Form submission — captures the booking form data and saves it
-       to a shared online database (JSONBin.io, free tier).
+       to Google Sheets via Google Apps Script.
   =================================================================== -->
   <script>
 
@@ -1333,14 +1333,10 @@
     /* ------------------------------------------------------------------
     PART 2 — FORM SUBMISSION TO GOOGLE SHEETS
     Sends form data to a Google Apps Script web app which writes a
-    new row into a Google Sheet.
-
-    HOW TO SET YOUR SCRIPT URL:
-    1. Follow SETUP_GOOGLE_SHEETS.txt to deploy your Apps Script
-    2. Paste your Web App URL on the line marked below
+    new row into a Google Sheet. Uses no-cors for cross-origin support.
     ------------------------------------------------------------------ */
 
-    // 👇 PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BETWEEN THE QUOTES
+    // Google Apps Script Web App URL — do not change unless redeployed
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0V1j7cE5mVsAWl_isOynBEOw628cPiePH6T2cLkGpdlWMRtK68NNyMDMmWwIvynwD/exec';
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -1368,12 +1364,6 @@
           return;
         }
 
-        // Check the script URL has been configured
-        if (!SCRIPT_URL || SCRIPT_URL === 'PASTE_YOUR_SCRIPT_URL_HERE') {
-          alert('The booking form is not yet configured. Please contact us directly by email.');
-          return;
-        }
-
         // Show sending state on the button
         var btn = form.querySelector('button[type="submit"]');
         var originalHTML = btn.innerHTML;
@@ -1391,7 +1381,7 @@
         };
 
         // Send to Google Apps Script
-        // no-cors is required for requests made from websites to Apps Script
+        // no-cors required for cross-origin requests from external websites
         fetch(SCRIPT_URL, {
           method:  'POST',
           mode:    'no-cors',
@@ -1399,7 +1389,7 @@
           body:    JSON.stringify(payload)
         })
         .then(function () {
-          // Show thank-you message — no-cors always reaches here if request was sent
+          // Show thank-you message
           var firstName = nameVal.split(' ')[0];
           form.innerHTML =
             '<div style="text-align:center;padding:52px 24px;">' +
