@@ -1287,57 +1287,49 @@
 
   <!-- ===================================================================
   JAVASCRIPT — NAVIGATION & FORM SUBMISSION
-  This section handles two things:
-    1. Smooth scrolling — makes navbar links and buttons scroll to the
-       correct section. This method works inside Google Sites iframes
-       where normal #anchor links do not function.
-    2. Form submission — captures the booking form data and saves it
-       to Google Sheets via Google Apps Script.
+  1. Smooth scrolling — makes navbar links scroll correctly
+  2. Form submission — sends data to Formspree which emails you directly
   =================================================================== -->
   <script>
 
     /* ------------------------------------------------------------------
     PART 1 — SMOOTH SCROLL
-    Finds every link that starts with "#" and makes it smoothly scroll
-    to the matching section. Works inside Google Sites iframes where
-    standard anchor links are blocked.
+    Works inside GitHub Pages and any browser. Intercepts all # links
+    and smoothly scrolls to the correct section.
     ------------------------------------------------------------------ */
     document.addEventListener('DOMContentLoaded', function () {
-
       var allLinks = document.querySelectorAll('a[href^="#"]');
-
       allLinks.forEach(function (link) {
         link.addEventListener('click', function (e) {
           e.preventDefault();
-
           var targetId = this.getAttribute('href').replace('#', '');
           var targetEl = document.getElementById(targetId);
-
           if (targetEl) {
-            // Offset by navbar height so content is not hidden underneath it
             var navHeight = document.querySelector('.navbar')
               ? document.querySelector('.navbar').offsetHeight : 0;
-
             var targetTop =
               targetEl.getBoundingClientRect().top +
               window.pageYOffset - navHeight - 10;
-
             window.scrollTo({ top: targetTop, behavior: 'smooth' });
           }
         });
       });
-
     });
 
 
     /* ------------------------------------------------------------------
-    PART 2 — FORM SUBMISSION TO GOOGLE SHEETS
-    Sends form data to a Google Apps Script web app which writes a
-    new row into a Google Sheet. Uses no-cors for cross-origin support.
+    PART 2 — FORM SUBMISSION VIA FORMSPREE
+    Formspree receives submissions and emails them directly to you.
+    View all submissions at: https://formspree.io/forms
+
+    TO UPDATE THE ENDPOINT:
+    1. Log into formspree.io
+    2. Copy your form URL
+    3. Replace the value below
     ------------------------------------------------------------------ */
 
-    // Google Apps Script Web App URL — do not change unless redeployed
-    var SCRIPT_URL = 'https://script.google.com/a/macros/aiminghightutors.co.uk/s/AKfycbzqsqwBddpwD5lLkX1NAS6PclnKrOgbjJ5OeV7ixB1Dg1_bd81PUrPXpVyAPOY0Xl_odA/exec';
+    // Formspree endpoint — do not change unless you create a new form
+    var FORMSPREE_URL = 'https://formspree.io/f/xnjwonzd';
 
     document.addEventListener('DOMContentLoaded', function () {
       var form = document.querySelector('.contact-form form');
@@ -1346,50 +1338,53 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // Collect all form field values
+        // Collect form values
         var nameVal    = document.getElementById('name').value.trim();
         var emailVal   = document.getElementById('email').value.trim();
         var phoneVal   = document.getElementById('phone').value.trim();
         var subjectVal = document.getElementById('subject').value;
         var messageVal = document.getElementById('message').value.trim();
 
-        // Validate — name and email are required
+        // Validate required fields
         if (!nameVal || !emailVal) {
           alert('Please fill in your name and email address before submitting.');
           return;
         }
-
         if (!subjectVal) {
           alert('Please select a subject from the dropdown.');
           return;
         }
 
-        // Show sending state on the button
+        // Show sending state
         var btn = form.querySelector('button[type="submit"]');
         var originalHTML = btn.innerHTML;
         btn.innerHTML = 'Sending&hellip;';
         btn.disabled = true;
 
-        // Build the data payload to send
+        // Build payload
         var payload = {
-          timestamp: new Date().toLocaleString('en-GB'),
           name:      nameVal,
           email:     emailVal,
-          phone:     phoneVal || 'Not provided',
+          phone:     phoneVal   || 'Not provided',
           subject:   subjectVal,
-          message:   messageVal || 'No message provided'
+          message:   messageVal || 'No message provided',
+          timestamp: new Date().toLocaleString('en-GB')
         };
 
-        // Send to Google Apps Script
-        // no-cors required for cross-origin requests from external websites
-        fetch(SCRIPT_URL, {
+        // Send to Formspree
+        fetch(FORMSPREE_URL, {
           method:  'POST',
-          mode:    'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(payload)
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept':       'application/json'
+          },
+          body: JSON.stringify(payload)
         })
-        .then(function () {
-          // Show thank-you message
+        .then(function(res) {
+          if (!res.ok) throw new Error('Server returned ' + res.status);
+          return res.json();
+        })
+        .then(function() {
           var firstName = nameVal.split(' ')[0];
           form.innerHTML =
             '<div style="text-align:center;padding:52px 24px;">' +
@@ -1403,14 +1398,13 @@
             '24 hours to arrange your free session.</p>' +
             '</div>';
         })
-        .catch(function (err) {
-          // Restore the form if the request failed to send
+        .catch(function(err) {
           console.error('Submission error:', err);
           btn.innerHTML = originalHTML;
           btn.disabled = false;
           alert(
             'There was a problem sending your message.\n\n' +
-            'Please email us directly or try again.\n\n' +
+            'Please email us at hello@aiminghightutors.co.uk\n\n' +
             'Error: ' + err.message
           );
         });
@@ -1418,8 +1412,7 @@
       });
     });
 
-  <\/script>
+  </script>
 
 </body>
 </html>
-
