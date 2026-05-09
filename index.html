@@ -319,8 +319,7 @@
     and set background-size: cover; background-position: center;
     */
     .about__image-box {
-      url('/User/dj/Downloads/Aiming v3.0/assests/teachingassetelijah.jpg'):
-      border-radius: var(--radius);
+      
       min-height: 380px;
       display: flex;
       align-items: center;
@@ -1338,8 +1337,18 @@
     ------------------------------------------------------------------ */
 
     // Your database credentials — already filled in
-    var BIN_ID  = '69fc9fb7250b1311c318f4fc';
-    var API_KEY = '$2a$10$Jucgng6nMjR4BA8qTPMscekyo7v3uJ53YOd0hXHoPVbo1/Gl7Z2gm';
+    /* ------------------------------------------------------------------
+    PART 2 — FORM SUBMISSION TO GOOGLE SHEETS
+    Sends form data to a Google Apps Script which writes it to a
+    Google Sheet. Uses no-cors mode for cross-origin iframe support.
+
+    HOW TO SET YOUR SCRIPT URL:
+    Replace PASTE_YOUR_SCRIPT_URL_HERE below with your Apps Script
+    Web App URL from SETUP_GOOGLE_SHEETS.txt
+    ------------------------------------------------------------------ */
+
+    // 👇 PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzBXcrNeMO05qafOYdAZs2n3JuJCA0UxK7jvhPB-HmStxFHm2q2skl8w0uSF6Uom-7/exec';
 
     document.addEventListener('DOMContentLoaded', function () {
       var form = document.querySelector('.contact-form form');
@@ -1348,77 +1357,71 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // Collect all form field values
-        var entry = {
-          timestamp: new Date().toISOString(),
-          name:      form.querySelector('#name').value,
-          email:     form.querySelector('#email').value,
-          phone:     form.querySelector('#phone').value,
-          subject:   form.querySelector('#subject').value,
-          message:   form.querySelector('#message').value
-        };
+        // Collect form values
+        var nameVal    = document.getElementById('name').value.trim();
+        var emailVal   = document.getElementById('email').value.trim();
+        var phoneVal   = document.getElementById('phone').value.trim();
+        var subjectVal = document.getElementById('subject').value;
+        var messageVal = document.getElementById('message').value.trim();
 
-        // Update button to show sending state
+        // Validate required fields
+        if (!nameVal || !emailVal) {
+          alert('Please fill in your name and email address before submitting.');
+          return;
+        }
+
+        if (!subjectVal) {
+          alert('Please select a subject from the dropdown.');
+          return;
+        }
+
+        // Show sending state on button
         var btn = form.querySelector('button[type="submit"]');
-        var originalText = btn.textContent;
-        btn.textContent = 'Sending...';
+        var originalHTML = btn.innerHTML;
+        btn.innerHTML = 'Sending&hellip;';
         btn.disabled = true;
 
-        // Read existing submissions first, then append and save
-        fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
-          method: 'GET',
-          headers: {
-            'X-Master-Key': API_KEY,
-            'X-Bin-Meta': 'false'
-          }
-        })
-        .then(function(res) {
-          if (!res.ok) {
-            throw new Error('Could not read bin. Status: ' + res.status);
-          }
-          return res.json();
-        })
-        .then(function(data) {
-          // Build updated submissions array
-          var existing = [];
-          if (data && Array.isArray(data.submissions)) {
-            existing = data.submissions;
-          }
-          existing.push(entry);
+        // Build data payload
+        var payload = {
+          timestamp: new Date().toLocaleString('en-GB'),
+          name:      nameVal,
+          email:     emailVal,
+          phone:     phoneVal || 'Not provided',
+          subject:   subjectVal,
+          message:   messageVal || 'No message provided'
+        };
 
-          // Write updated array back to bin
-          return fetch('https://api.jsonbin.io/v3/b/' + BIN_ID, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Master-Key': API_KEY
-            },
-            body: JSON.stringify({ submissions: existing })
-          });
+        // Send to Google Apps Script
+        // no-cors required for cross-origin requests from iframes
+        fetch(SCRIPT_URL, {
+          method:  'POST',
+          mode:    'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload)
         })
-        .then(function(res) {
-          if (!res.ok) {
-            throw new Error('Could not save submission. Status: ' + res.status);
-          }
+        .then(function() {
           // Show thank-you message
-          var firstName = entry.name.split(' ')[0];
+          var firstName = nameVal.split(' ')[0];
           form.innerHTML =
-            '<div style="text-align:center;padding:40px 20px;">' +
-            '<div style="font-size:3rem;margin-bottom:16px;">&#127881;</div>' +
-            '<h3 style="color:#2B2B2B;font-family:Nunito,sans-serif;margin-bottom:12px;">' +
+            '<div style="text-align:center;padding:52px 24px;">' +
+            '<div style="font-size:4rem;margin-bottom:16px;line-height:1;">&#127881;</div>' +
+            '<h3 style="color:#2B2B2B;font-family:Nunito,sans-serif;' +
+                'font-size:1.7rem;margin-bottom:14px;">' +
             'Thank you, ' + firstName + '!</h3>' +
-            '<p style="color:#8a7060;">We have received your message and will be in touch within 24 hours to arrange your free session.</p>' +
+            '<p style="color:#8a7060;font-size:1.05rem;max-width:420px;' +
+                'margin:0 auto;line-height:1.6;">' +
+            'Your enquiry has been received. We will be in touch within ' +
+            '24 hours to arrange your free session.</p>' +
             '</div>';
         })
         .catch(function(err) {
-          // Show a specific error message so the problem is easy to diagnose
           console.error('Submission error:', err);
-          btn.textContent = originalText;
+          btn.innerHTML = originalHTML;
           btn.disabled = false;
           alert(
-            'Could not send your message.\n\n' +
-            'Error: ' + err.message + '\n\n' +
-            'Please screenshot this message and send it to the site administrator.'
+            'There was a problem sending your message.\n\n' +
+            'Please email us directly or try again.\n\n' +
+            'Error: ' + err.message
           );
         });
 
