@@ -1331,23 +1331,16 @@
 
 
     /* ------------------------------------------------------------------
-    PART 2 — FORM SUBMISSION TO DATABASE
-    Submits form data directly to JSONBin.io using a single POST request.
-    Each submission is saved as its own record — no read-then-write needed.
-    ------------------------------------------------------------------ */
-
-    // Your database credentials — already filled in
-    /* ------------------------------------------------------------------
     PART 2 — FORM SUBMISSION TO GOOGLE SHEETS
-    Sends form data to a Google Apps Script which writes it to a
-    Google Sheet. Uses no-cors mode for cross-origin iframe support.
+    Sends form data to a Google Apps Script web app which writes a
+    new row into a Google Sheet.
 
     HOW TO SET YOUR SCRIPT URL:
-    Replace PASTE_YOUR_SCRIPT_URL_HERE below with your Apps Script
-    Web App URL from SETUP_GOOGLE_SHEETS.txt
+    1. Follow SETUP_GOOGLE_SHEETS.txt to deploy your Apps Script
+    2. Paste your Web App URL on the line marked below
     ------------------------------------------------------------------ */
 
-    // 👇 PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+    // 👇 PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BETWEEN THE QUOTES
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzBXcrNeMO05qafOYdAZs2n3JuJCA0UxK7jvhPB-HmStxFHm2q2skl8w0uSF6Uom-7/exec';
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -1357,14 +1350,14 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // Collect form values
+        // Collect all form field values
         var nameVal    = document.getElementById('name').value.trim();
         var emailVal   = document.getElementById('email').value.trim();
         var phoneVal   = document.getElementById('phone').value.trim();
         var subjectVal = document.getElementById('subject').value;
         var messageVal = document.getElementById('message').value.trim();
 
-        // Validate required fields
+        // Validate — name and email are required
         if (!nameVal || !emailVal) {
           alert('Please fill in your name and email address before submitting.');
           return;
@@ -1375,13 +1368,19 @@
           return;
         }
 
-        // Show sending state on button
+        // Check the script URL has been configured
+        if (!SCRIPT_URL || SCRIPT_URL === 'PASTE_YOUR_SCRIPT_URL_HERE') {
+          alert('The booking form is not yet configured. Please contact us directly by email.');
+          return;
+        }
+
+        // Show sending state on the button
         var btn = form.querySelector('button[type="submit"]');
         var originalHTML = btn.innerHTML;
         btn.innerHTML = 'Sending&hellip;';
         btn.disabled = true;
 
-        // Build data payload
+        // Build the data payload to send
         var payload = {
           timestamp: new Date().toLocaleString('en-GB'),
           name:      nameVal,
@@ -1392,15 +1391,15 @@
         };
 
         // Send to Google Apps Script
-        // no-cors required for cross-origin requests from iframes
+        // no-cors is required for requests made from websites to Apps Script
         fetch(SCRIPT_URL, {
           method:  'POST',
           mode:    'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify(payload)
         })
-        .then(function() {
-          // Show thank-you message
+        .then(function () {
+          // Show thank-you message — no-cors always reaches here if request was sent
           var firstName = nameVal.split(' ')[0];
           form.innerHTML =
             '<div style="text-align:center;padding:52px 24px;">' +
@@ -1414,7 +1413,8 @@
             '24 hours to arrange your free session.</p>' +
             '</div>';
         })
-        .catch(function(err) {
+        .catch(function (err) {
+          // Restore the form if the request failed to send
           console.error('Submission error:', err);
           btn.innerHTML = originalHTML;
           btn.disabled = false;
