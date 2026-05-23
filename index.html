@@ -1109,15 +1109,16 @@
 
 
   <!-- ===================================================================
-  BOOKING SECTION — CALENDLY WIDGET
-  This section embeds the Calendly booking widget so clients can
-  book a free 30-minute taster session directly from your live calendar.
+  BOOKING SECTION — DYNAMIC MULTI-TUTOR CALENDLY WIDGET
+  Tutor data is loaded dynamically from the Tutor Config API
+  (Google Apps Script). No tutor details are hardcoded here.
 
-  HOW TO UPDATE YOUR CALENDLY LINK:
-  1. Log into calendly.com
-  2. Go to your event type for the 30-min taster session
-  3. Click "Share" and copy your personal Calendly URL
-  4. Replace the data-url value below with your URL
+  Adding or removing a tutor only requires updating the Google Sheet
+  and setting their Active status — this section updates automatically.
+
+  HOW TO UPDATE THE API URL:
+  After deploying tutor_config_api.gs as a Web App, paste the
+  Web App URL below to replace PASTE_TUTOR_API_URL_HERE.
   =================================================================== -->
   <section id="booking" class="section section--cream">
     <div class="container">
@@ -1125,27 +1126,56 @@
       <span class="section-label">Free Taster Session</span>
       <h2>Book Your Free 30-Minute Taster</h2>
       <p class="section-intro">
-        Pick a time that works for you from the calendar below. All available
-        slots are kept up to date in real time — what you see is what's free.
+        Select a subject below to see your tutor's live availability.
+        All slots are kept up to date in real time — what you see is what's free.
       </p>
 
-      <!-- CALENDLY INLINE WIDGET
-      Replace PASTE_YOUR_CALENDLY_URL_HERE with your Calendly event link.
-      Example: https://calendly.com/yourname/taster-session
-      The widget will show your live availability automatically. -->
-      <div
-        class="calendly-inline-widget"
-        data-url="https://calendly.com/folashade-aiminghightutors/30min"
-        style="min-width:320px; height:700px; border-radius:12px; overflow:hidden;">
+      <!-- SUBJECT TOGGLE — built dynamically from tutor data -->
+      <div id="booking-subject-toggle" style="
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 32px;">
+        <!-- Buttons injected by JavaScript -->
+        <p id="booking-loading" style="color:var(--color-muted); font-size:0.95rem;">
+          Loading available tutors&hellip;
+        </p>
       </div>
-      <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
 
-      <!-- ---------------------------------------------------------------
-      CAN'T SEE A SLOT THAT WORKS?
-      This prompt sits below the calendar and directs parents to the
-      slot request form in the section below.
-      --------------------------------------------------------------- -->
-      <div style="
+      <!-- TUTOR NAME + SUBJECT LABEL -->
+      <div id="booking-tutor-label" style="
+        text-align: center;
+        margin-bottom: 20px;
+        min-height: 28px;">
+      </div>
+
+      <!-- CALENDLY WIDGET CONTAINER — swapped by JavaScript -->
+      <div id="booking-calendly-container" style="
+        min-width: 320px;
+        min-height: 700px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        display: none;">
+      </div>
+
+      <!-- NO TUTORS FALLBACK — shown if API returns no active tutors -->
+      <div id="booking-unavailable" style="
+        display: none;
+        text-align: center;
+        padding: 40px 24px;
+        background: var(--color-white);
+        border-radius: var(--radius);">
+        <p style="font-size:1.1rem; color:var(--color-muted);">
+          No tutor availability is currently set up.<br>
+          Please use the contact form below to get in touch.
+        </p>
+        <a href="#contact" class="btn" style="margin-top:20px;">Contact Us</a>
+      </div>
+
+      <!-- CAN'T FIND A SLOT -->
+      <div id="booking-request-prompt" style="
+        display: none;
         text-align: center;
         margin-top: 40px;
         padding: 32px;
@@ -1156,7 +1186,7 @@
           Can't find a time that works?
         </p>
         <p style="color:var(--color-muted); margin-bottom:20px;">
-          If none of the available slots suit you, you can request a specific
+          If none of the available slots suit you, request a specific
           date and time below and we'll do our best to accommodate you.
         </p>
         <a href="#slot-request" class="btn">Request a Different Time</a>
@@ -1164,6 +1194,10 @@
 
     </div>
   </section>
+
+  <!-- Calendly widget script — loaded once, used for all tutors -->
+  <script type="text/javascript"
+    src="https://assets.calendly.com/assets/external/widget.js" async></script>
 
 
   <!-- ===================================================================
@@ -1584,7 +1618,129 @@
     });
 
     /* ------------------------------------------------------------------
-    PART 3 — SLOT REQUEST FORM SUBMISSION VIA FORMSPREE
+    PART 3 — DYNAMIC BOOKING SECTION
+    Fetches tutor data from the Tutor Config API (Apps Script).
+    Builds the subject toggle and Calendly widget dynamically.
+    Adding a tutor only requires updating the Google Sheet.
+
+    TO SET UP:
+    Deploy tutor_config_api.gs as a Web App and replace
+    PASTE_TUTOR_API_URL_HERE below with your Web App URL.
+    ------------------------------------------------------------------ */
+
+    var TUTOR_API_URL = 'https://script.google.com/macros/s/AKfycby_jKcJLeuWk3lt01posPts1we430FmSMV0DYtsHGsnbo-fND0SK_doOXzX0agq2t-Y/exec';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      loadTutors();
+    });
+
+    var activeTutors   = [];
+    var activeSubject  = null;
+
+    function loadTutors() {
+      fetch(TUTOR_API_URL)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data.ok || !data.tutors || data.tutors.length === 0) {
+            showBookingUnavailable();
+            return;
+          }
+          activeTutors = data.tutors;
+          buildSubjectToggle(activeTutors);
+        })
+        .catch(function() {
+          showBookingUnavailable();
+        });
+    }
+
+    function buildSubjectToggle(tutors) {
+      var toggle  = document.getElementById('booking-subject-toggle');
+      var loading = document.getElementById('booking-loading');
+      if (loading) loading.style.display = 'none';
+
+      // Get unique subjects in the order they appear
+      var seen     = {};
+      var subjects = [];
+      tutors.forEach(function(t) {
+        if (!seen[t.subject]) { seen[t.subject] = true; subjects.push(t.subject); }
+      });
+
+      subjects.forEach(function(subject) {
+        var btn = document.createElement('button');
+        btn.textContent = subject;
+        btn.className   = 'btn btn--outline';
+        btn.setAttribute('data-subject', subject);
+        btn.style.cssText = 'min-width:160px; font-size:1rem;';
+        btn.addEventListener('click', function() {
+          selectSubject(subject, tutors);
+          // Update button active states
+          toggle.querySelectorAll('button').forEach(function(b) {
+            b.className = b.getAttribute('data-subject') === subject
+              ? 'btn' : 'btn btn--outline';
+          });
+        });
+        toggle.appendChild(btn);
+      });
+
+      // Auto-select the first subject
+      if (subjects.length > 0) {
+        selectSubject(subjects[0], tutors);
+        var firstBtn = toggle.querySelector('button');
+        if (firstBtn) firstBtn.className = 'btn';
+      }
+    }
+
+    function selectSubject(subject, tutors) {
+      activeSubject = subject;
+      var tutor     = tutors.find(function(t) { return t.subject === subject; });
+      if (!tutor) return;
+
+      // Update tutor label
+      var label = document.getElementById('booking-tutor-label');
+      if (label) {
+        label.innerHTML =
+          '<p style="font-size:1rem; color:var(--color-muted);">' +
+          '<strong style="color:var(--color-dark);">' + tutor.subject + '</strong>' +
+          ' &mdash; ' + tutor.name + '</p>';
+      }
+
+      // Build or replace the Calendly widget
+      var container = document.getElementById('booking-calendly-container');
+      if (!container) return;
+      container.style.display = 'block';
+      container.innerHTML = '';
+
+      var widget = document.createElement('div');
+      widget.className = 'calendly-inline-widget';
+      widget.setAttribute('data-url', tutor.calendlyUrl);
+      widget.style.cssText = 'min-width:320px; height:700px;';
+      container.appendChild(widget);
+
+      // Re-initialise the Calendly widget for the new URL
+      if (window.Calendly) {
+        window.Calendly.initInlineWidget({
+          url:          tutor.calendlyUrl,
+          parentElement: widget,
+          prefill:      {},
+          utm:          {}
+        });
+      }
+
+      // Show the "can't find a slot" prompt
+      var prompt = document.getElementById('booking-request-prompt');
+      if (prompt) prompt.style.display = 'block';
+    }
+
+    function showBookingUnavailable() {
+      var loading = document.getElementById('booking-loading');
+      if (loading) loading.style.display = 'none';
+      var unavail = document.getElementById('booking-unavailable');
+      if (unavail) unavail.style.display = 'block';
+    }
+
+
+    /* ------------------------------------------------------------------
+    PART 4 — SLOT REQUEST FORM SUBMISSION VIA FORMSPREE
     This is a separate form from the main contact form.
     Submissions go to a second Formspree endpoint which triggers
     a Telegram notification to you via the Formspree Telegram plugin.
@@ -1596,7 +1752,7 @@
     3. Replace PASTE_SLOT_REQUEST_FORMSPREE_URL_HERE below with your URL
     ------------------------------------------------------------------ */
 
-    var SLOT_REQUEST_URL = 'https://formspree.io/f/xnjwrakb';
+    var SLOT_REQUEST_URL = 'https://formspree.io/f/mwvzqpak';
 
     document.addEventListener('DOMContentLoaded', function () {
       var slotForm = document.getElementById('slot-request-form');
