@@ -205,6 +205,39 @@
     }
 
     /* =====================================================================
+    SUBJECT TOGGLE BUTTONS — booking section
+    .btn--toggle         — unselected state: dark border, dark text, always legible
+    .btn--toggle.active  — selected state: solid orange, dark text
+    ===================================================================== */
+    .btn--toggle {
+      display: inline-block;
+      background: var(--color-white);
+      color: var(--color-dark);
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 36px;
+      border-radius: 50px;
+      border: 2px solid var(--color-dark);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+      min-width: 160px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .btn--toggle:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .btn--toggle.active {
+      background: var(--color-accent);
+      color: var(--color-dark);
+      border-color: var(--color-accent);
+      box-shadow: 0 4px 16px rgba(247,148,29,0.35);
+    }
+
+    /* =====================================================================
     HERO SECTION
     The large banner at the top of the page.
 
@@ -1277,13 +1310,8 @@
               <label class="form__label" for="sr-subject">Subject *</label>
               <select class="form__select" id="sr-subject" name="subject" required>
                 <option value="" disabled selected>Please select…</option>
-                <option>KS2 / SATs — Maths</option>
-                <option>KS2 / SATs — English</option>
-                <option>GCSE Science</option>
-                <option>GCSE Maths</option>
-                <option>GCSE English</option>
-                <option>General study skills / confidence</option>
-                <option>Other</option>
+                <option>Science</option>
+                <option>Maths</option>
               </select>
             </div>
 
@@ -1405,14 +1433,8 @@
               <label class="form__label" for="subject">What does your child need help with? *</label>
               <select class="form__select" id="subject" name="subject" required>
                 <option value="" disabled selected>Please select…</option>
-                <!-- Add or remove options as needed -->
-                <option>KS2 / SATs — Maths</option>
-                <option>KS2 / SATs — English</option>
-                <option>GCSE Science</option>
-                <option>GCSE Maths</option>
-                <option>GCSE English</option>
-                <option>General study skills / confidence</option>
-                <option>Other</option>
+                <option>Science</option>
+                <option>Maths</option>
               </select>
             </div>
 
@@ -1668,15 +1690,15 @@
       subjects.forEach(function(subject) {
         var btn = document.createElement('button');
         btn.textContent = subject;
-        btn.className   = 'btn btn--outline';
+        btn.className   = 'btn--toggle';
         btn.setAttribute('data-subject', subject);
-        btn.style.cssText = 'min-width:160px; font-size:1rem;';
         btn.addEventListener('click', function() {
           selectSubject(subject, tutors);
-          // Update button active states
+          // Update active state — both buttons always visible and legible
           toggle.querySelectorAll('button').forEach(function(b) {
             b.className = b.getAttribute('data-subject') === subject
-              ? 'btn' : 'btn btn--outline';
+              ? 'btn--toggle active'
+              : 'btn--toggle';
           });
         });
         toggle.appendChild(btn);
@@ -1686,7 +1708,7 @@
       if (subjects.length > 0) {
         selectSubject(subjects[0], tutors);
         var firstBtn = toggle.querySelector('button');
-        if (firstBtn) firstBtn.className = 'btn';
+        if (firstBtn) firstBtn.className = 'btn--toggle active';
       }
     }
 
