@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Aiming High Tutors</title>
+  <meta name="description" content="Tips, guides and advice for parents and students navigating exams, revision and building academic confidence." />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Lato:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --color-dark:     #2B2B2B;
+      --color-mid:      #5C3D1E;
+      --color-accent:   #F7941D;
+      --color-light-bg: #FEF3E8;
+      --color-white:    #FFFAF5;
+      --color-text:     #3E3028;
+      --color-muted:    #8a7060;
+      --font-heading:   'Nunito', Georgia, sans-serif;
+      --font-body:      'Lato', Arial, sans-serif;
+      --radius:         12px;
+      --max-width:      1100px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--color-text);
+      background: var(--color-white);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      width: 90%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-heading);
+      color: var(--color-dark);
+      line-height: 1.25;
+    }
+
+    h1 { font-size: clamp(2rem, 5vw, 3rem); }
+    h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 16px; }
+    h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    p  { margin-bottom: 16px; }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 10px;
+    }
+
+    /* =====================================================================
+    NAVBAR
+    ===================================================================== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-dark);
+      padding: 16px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .navbar__logo {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      color: var(--color-white);
+      text-decoration: none;
+    }
+
+    .navbar__logo span { color: var(--color-accent); }
+
+    .navbar__links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .navbar__links a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .navbar__links a:hover,
+    .navbar__links a.active { color: var(--color-accent); }
+
+    /* =====================================================================
+    PAGE HERO
+    ===================================================================== */
+    .page-hero {
+      background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-mid) 100%);
+      color: var(--color-white);
+      padding: 72px 0 60px;
+      text-align: center;
+    }
+
+    .page-hero h1 { color: var(--color-white); margin-bottom: 16px; }
+
+    .page-hero p {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.1rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* =====================================================================
+    FILTER BAR
+    ===================================================================== */
+    .filter-bar {
+      background: var(--color-white);
+      border-bottom: 1px solid #e8e8e8;
+      padding: 18px 0;
+      position: sticky;
+      top: 56px;
+      z-index: 50;
+    }
+
+    .filter-bar__inner {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-btn {
+      background: var(--color-white);
+      color: var(--color-dark);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 8px 20px;
+      border-radius: 50px;
+      border: 2px solid #dde3e8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .filter-btn.active {
+      background: var(--color-accent);
+      color: var(--color-dark);
+      border-color: var(--color-accent);
+    }
+
+    /* =====================================================================
+    BLOG GRID
+    ===================================================================== */
+    .blog-section {
+      padding: 60px 0 80px;
+    }
+
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 32px;
+    }
+
+    .blog-card {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      transition: transform 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #f0ebe4;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 36px rgba(92,61,30,0.12);
+    }
+
+    .blog-card__image {
+      height: 200px;
+      background: linear-gradient(135deg, var(--color-light-bg), #e8d5b7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-muted);
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blog-card__category-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: var(--color-accent);
+      color: var(--color-dark);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 50px;
+    }
+
+    .blog-card__body {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .blog-card__meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .blog-card__date {
+      font-size: 0.78rem;
+      color: var(--color-muted);
+      font-weight: 500;
+    }
+
+    .blog-card__author {
+      font-size: 0.78rem;
+      color: var(--color-mid);
+      font-weight: 600;
+    }
+
+    .blog-card__author::before {
+      content: '·';
+      margin-right: 12px;
+      color: var(--color-muted);
+    }
+
+    .blog-card__title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      color: var(--color-dark);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .blog-card__excerpt {
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      margin-bottom: 20px;
+      flex: 1;
+      line-height: 1.6;
+    }
+
+    .blog-card__link {
+      display: inline-block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .blog-card__link:hover { color: var(--color-mid); }
+
+    /* =====================================================================
+    LOADING + EMPTY STATES
+    ===================================================================== */
+    .blog-status {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--color-muted);
+    }
+
+    .blog-status__icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+
+    .blog-status p {
+      font-size: 1.05rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* =====================================================================
+    FOOTER
+    ===================================================================== */
+    .footer {
+      background: var(--color-dark);
+      color: rgba(255,255,255,0.7);
+      padding: 48px 0 24px;
+    }
+
+    .footer__inner {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .footer__brand { flex: 2; min-width: 220px; }
+    .footer__col   { flex: 1; min-width: 140px; }
+
+    .footer__logo {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      color: var(--color-white);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .footer__logo span { color: var(--color-accent); }
+
+    .footer h4 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-white);
+      margin-bottom: 14px;
+    }
+
+    .footer__links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer__links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+
+    .footer__links a:hover { color: var(--color-accent); }
+
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* =====================================================================
+    RESPONSIVE
+    ===================================================================== */
+    @media (max-width: 768px) {
+      .page-hero { padding: 52px 0 44px; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .navbar__inner { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="navbar__logo">Aiming <span>High</span> Tutors</a>
+      <ul class="navbar__links">
+        <li><a href="index.html#about">About Us</a></li>
+        <li><a href="index.html#services">Tuition</a></li>
+        <li><a href="index.html#reviews">Reviews</a></li>
+        <li><a href="blog.html" class="active">Blog</a></li>
+        <li><a href="index.html#booking">Book a Session</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="container">
+      <span class="section-label">From the Blog</span>
+      <h1>Tips, Guides &amp; Advice</h1>
+      <p>
+        Practical advice for parents and students navigating exams,
+        revision, and building academic confidence.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- FILTER BAR — built dynamically from post categories -->
+  <div class="filter-bar">
+    <div class="container">
+      <div class="filter-bar__inner" id="filter-bar">
+        <button class="filter-btn active" data-category="all">All Posts</button>
+        <!-- Category buttons injected by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- BLOG POSTS GRID -->
+  <section class="blog-section">
+    <div class="container">
+
+      <!-- Loading state -->
+      <div id="blog-loading" class="blog-status">
+        <div class="blog-status__icon">📖</div>
+        <p>Loading posts&hellip;</p>
+      </div>
+
+      <!-- Posts grid — built by JavaScript -->
+      <div id="blog-grid" class="blog-grid" style="display:none;"></div>
+
+      <!-- Empty / no posts matching filter -->
+      <div id="blog-empty" class="blog-status" style="display:none;">
+        <div class="blog-status__icon">📭</div>
+        <p>No posts found in this category yet. Check back soon!</p>
+      </div>
+
+      <!-- Error state -->
+      <div id="blog-error" class="blog-status" style="display:none;">
+        <div class="blog-status__icon">⚠️</div>
+        <p>Could not load posts right now. Please try refreshing the page.</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">Aiming <span>High</span> Tutors</span>
+          <p>Qualified, caring tutors helping students from KS2 to GCSE build confidence and achieve their best results.</p>
+        </div>
+        <div class="footer__col">
+          <h4>Quick Links</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#services">Tuition</a></li>
+            <li><a href="index.html#reviews">Reviews</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#booking">Book a Session</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Subjects</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#services">GCSE Science</a></li>
+            <li><a href="index.html#services">GCSE Maths</a></li>
+            <li><a href="index.html#services">KS2 SATs</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2025 Aiming High Tutors. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // =====================================================================
+    //  BLOG LISTING — DYNAMIC POST LOADING
+    //
+    //  TO SET UP:
+    //  Deploy blog_api.gs as a Web App and replace
+    //  PASTE_BLOG_API_URL_HERE below with your Web App URL.
+    // =====================================================================
+
+    var BLOG_API_URL = 'https://script.google.com/macros/s/AKfycbyuneqiMrY-ANNUuSCVV_JN240JhCodCRmTIG7x03I8z4F-ac4JhL-dpscdKhBiVNQ/exec';
+
+    var allPosts       = [];
+    var activeCategory = 'all';
+
+    // Default card images per category — fallback gradient if none set
+    var CATEGORY_IMAGES = {
+      'GCSE':      'https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-polina-tankilevitch-6929185.jpg',
+      'SATs':      'https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-karola-g-6958531.jpg',
+      'Revision':  'https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-mikhail-nilov-8121107.jpg',
+      'default':   ''
+    };
+
+    // ---------------------------------------------------------------
+    //  LOAD POSTS FROM API
+    // ---------------------------------------------------------------
+    fetch(BLOG_API_URL)
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        document.getElementById('blog-loading').style.display = 'none';
+
+        if (!data.ok || !data.posts || data.posts.length === 0) {
+          document.getElementById('blog-empty').style.display = 'block';
+          return;
+        }
+
+        allPosts = data.posts;
+        buildFilterBar(allPosts);
+        renderPosts(allPosts);
+      })
+      .catch(function() {
+        document.getElementById('blog-loading').style.display = 'none';
+        document.getElementById('blog-error').style.display = 'block';
+      });
+
+
+    // ---------------------------------------------------------------
+    //  BUILD FILTER BAR FROM CATEGORIES IN POSTS
+    // ---------------------------------------------------------------
+    function buildFilterBar(posts) {
+      var seen       = {};
+      var categories = [];
+      posts.forEach(function(p) {
+        if (p.category && !seen[p.category]) {
+          seen[p.category] = true;
+          categories.push(p.category);
+        }
+      });
+
+      var bar = document.getElementById('filter-bar');
+      categories.forEach(function(cat) {
+        var btn = document.createElement('button');
+        btn.className    = 'filter-btn';
+        btn.textContent  = cat;
+        btn.setAttribute('data-category', cat);
+        btn.addEventListener('click', function() {
+          setActiveFilter(cat);
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+
+    // ---------------------------------------------------------------
+    //  SET ACTIVE FILTER AND RE-RENDER
+    // ---------------------------------------------------------------
+    function setActiveFilter(category) {
+      activeCategory = category;
+
+      // Update button states
+      document.querySelectorAll('.filter-btn').forEach(function(btn) {
+        btn.className = btn.getAttribute('data-category') === category
+          ? 'filter-btn active' : 'filter-btn';
+      });
+
+      var filtered = category === 'all'
+        ? allPosts
+        : allPosts.filter(function(p) { return p.category === category; });
+
+      renderPosts(filtered);
+    }
+
+
+    // ---------------------------------------------------------------
+    //  RENDER POST CARDS
+    // ---------------------------------------------------------------
+    function renderPosts(posts) {
+      var grid  = document.getElementById('blog-grid');
+      var empty = document.getElementById('blog-empty');
+
+      if (posts.length === 0) {
+        grid.style.display  = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display  = 'grid';
+      grid.innerHTML      = '';
+
+      posts.forEach(function(post) {
+        var imgStyle = CATEGORY_IMAGES[post.category] || CATEGORY_IMAGES['default']
+          ? 'background: url(\'' + (CATEGORY_IMAGES[post.category] || CATEGORY_IMAGES['default']) + '\') center/cover no-repeat;'
+          : 'background: linear-gradient(135deg, var(--color-light-bg), #e8d5b7);';
+
+        var postUrl = 'post.html?url=' + encodeURIComponent(post.docUrl)
+          + '&title=' + encodeURIComponent(post.title)
+          + '&author=' + encodeURIComponent(post.author)
+          + '&date=' + encodeURIComponent(post.date)
+          + '&category=' + encodeURIComponent(post.category);
+
+        var card = document.createElement('div');
+        card.className = 'blog-card';
+        card.innerHTML =
+          '<div class="blog-card__image" style="' + imgStyle + '">' +
+            (post.category ? '<span class="blog-card__category-badge">' + escHtml(post.category) + '</span>' : '') +
+          '</div>' +
+          '<div class="blog-card__body">' +
+            '<div class="blog-card__meta">' +
+              '<span class="blog-card__date">' + escHtml(post.date) + '</span>' +
+              (post.author ? '<span class="blog-card__author">' + escHtml(post.author) + '</span>' : '') +
+            '</div>' +
+            '<p class="blog-card__title">' + escHtml(post.title) + '</p>' +
+            '<p class="blog-card__excerpt">' + escHtml(post.excerpt) + '</p>' +
+            '<a href="' + postUrl + '" class="blog-card__link">Read more &rarr;</a>' +
+          '</div>';
+
+        grid.appendChild(card);
+      });
+    }
+
+
+    // ---------------------------------------------------------------
+    //  HELPER — escape HTML to prevent XSS
+    // ---------------------------------------------------------------
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+
+</body>
+</html>

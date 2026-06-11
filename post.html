@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog Post — Aiming High Tutors</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Lato:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --color-dark:     #2B2B2B;
+      --color-mid:      #5C3D1E;
+      --color-accent:   #F7941D;
+      --color-light-bg: #FEF3E8;
+      --color-white:    #FFFAF5;
+      --color-text:     #3E3028;
+      --color-muted:    #8a7060;
+      --font-heading:   'Nunito', Georgia, sans-serif;
+      --font-body:      'Lato', Arial, sans-serif;
+      --radius:         12px;
+      --max-width:      1100px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--color-text);
+      background: var(--color-white);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      width: 90%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-heading);
+      color: var(--color-dark);
+      line-height: 1.25;
+    }
+
+    p { margin-bottom: 16px; }
+
+    /* =====================================================================
+    NAVBAR
+    ===================================================================== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-dark);
+      padding: 16px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .navbar__logo {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      color: var(--color-white);
+      text-decoration: none;
+    }
+
+    .navbar__logo span { color: var(--color-accent); }
+
+    .navbar__links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .navbar__links a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .navbar__links a:hover,
+    .navbar__links a.active { color: var(--color-accent); }
+
+    /* =====================================================================
+    POST HEADER
+    ===================================================================== */
+    .post-header {
+      background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-mid) 100%);
+      color: var(--color-white);
+      padding: 64px 0 52px;
+    }
+
+    .post-header__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 28px;
+      transition: color 0.2s;
+    }
+
+    .post-header__back:hover { color: var(--color-accent); }
+
+    .post-header__category {
+      display: inline-block;
+      background: var(--color-accent);
+      color: var(--color-dark);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+    }
+
+    .post-header h1 {
+      color: var(--color-white);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      margin-bottom: 20px;
+      max-width: 800px;
+    }
+
+    .post-header__meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .post-header__meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.9rem;
+    }
+
+    .post-header__meta-item strong {
+      color: var(--color-white);
+    }
+
+    /* =====================================================================
+    POST CONTENT — Google Doc iframe
+    ===================================================================== */
+    .post-content {
+      padding: 52px 0 80px;
+    }
+
+    .post-content__inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Loading state shown while iframe loads */
+    .post-loading {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--color-muted);
+    }
+
+    .post-loading__icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+
+    /* Error state */
+    .post-error {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--color-muted);
+      display: none;
+    }
+
+    /* The Google Doc iframe */
+    .post-iframe {
+      width: 100%;
+      min-height: 80vh;
+      border: none;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      display: none; /* shown once loaded */
+      background: var(--color-white);
+    }
+
+    /* =====================================================================
+    CTA STRIP — below the post
+    ===================================================================== */
+    .post-cta {
+      background: var(--color-light-bg);
+      border-top: 1px solid #e8d5b7;
+      padding: 52px 0;
+      text-align: center;
+    }
+
+    .post-cta h2 {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+    }
+
+    .post-cta p {
+      color: var(--color-muted);
+      max-width: 480px;
+      margin: 0 auto 28px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--color-accent);
+      color: var(--color-dark);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 14px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(247,148,29,0.35);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(247,148,29,0.45);
+    }
+
+    /* =====================================================================
+    FOOTER
+    ===================================================================== */
+    .footer {
+      background: var(--color-dark);
+      color: rgba(255,255,255,0.7);
+      padding: 48px 0 24px;
+    }
+
+    .footer__inner {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .footer__brand { flex: 2; min-width: 220px; }
+    .footer__col   { flex: 1; min-width: 140px; }
+
+    .footer__logo {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      color: var(--color-white);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .footer__logo span { color: var(--color-accent); }
+
+    .footer h4 {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-white);
+      margin-bottom: 14px;
+    }
+
+    .footer__links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer__links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+
+    .footer__links a:hover { color: var(--color-accent); }
+
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* =====================================================================
+    RESPONSIVE
+    ===================================================================== */
+    @media (max-width: 768px) {
+      .post-header { padding: 44px 0 36px; }
+      .navbar__inner { justify-content: center; }
+      .post-iframe { min-height: 60vh; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html" class="navbar__logo">Aiming <span>High</span> Tutors</a>
+      <ul class="navbar__links">
+        <li><a href="index.html#about">About Us</a></li>
+        <li><a href="index.html#services">Tuition</a></li>
+        <li><a href="index.html#reviews">Reviews</a></li>
+        <li><a href="blog.html" class="active">Blog</a></li>
+        <li><a href="index.html#booking">Book a Session</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <!-- POST HEADER — populated by JavaScript from URL parameters -->
+  <div class="post-header" id="post-header">
+    <div class="container">
+      <a href="blog.html" class="post-header__back">← Back to Blog</a>
+      <div id="post-category" class="post-header__category" style="display:none;"></div>
+      <h1 id="post-title">Loading post&hellip;</h1>
+      <div class="post-header__meta" id="post-meta"></div>
+    </div>
+  </div>
+
+
+  <!-- POST CONTENT -->
+  <section class="post-content">
+    <div class="container">
+      <div class="post-content__inner">
+
+        <!-- Loading indicator -->
+        <div id="post-loading" class="post-loading">
+          <div class="post-loading__icon">📄</div>
+          <p>Loading post&hellip;</p>
+        </div>
+
+        <!-- Error state — shown if Doc URL is missing or invalid -->
+        <div id="post-error" class="post-error">
+          <p style="font-size:1.1rem;">⚠️ This post could not be loaded.<br>
+          Please <a href="blog.html" style="color:var(--color-accent);">return to the blog</a>
+          or <a href="index.html#contact" style="color:var(--color-accent);">contact us</a>.</p>
+        </div>
+
+        <!-- Google Doc iframe — shown once loaded -->
+        <iframe
+          id="post-iframe"
+          class="post-iframe"
+          title="Blog post content"
+          allowfullscreen>
+        </iframe>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CTA STRIP -->
+  <div class="post-cta">
+    <div class="container">
+      <h2>Ready to Help Your Child Aim Higher?</h2>
+      <p>
+        Book a free 30-minute taster session today — no commitment required.
+      </p>
+      <a href="index.html#booking" class="btn">Book a Free Taster</a>
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">Aiming <span>High</span> Tutors</span>
+          <p>Qualified, caring tutors helping students from KS2 to GCSE build confidence and achieve their best results.</p>
+        </div>
+        <div class="footer__col">
+          <h4>Quick Links</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#services">Tuition</a></li>
+            <li><a href="index.html#reviews">Reviews</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#booking">Book a Session</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Subjects</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#services">GCSE Science</a></li>
+            <li><a href="index.html#services">GCSE Maths</a></li>
+            <li><a href="index.html#services">KS2 SATs</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2025 Aiming High Tutors. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // =====================================================================
+    //  POST READER — reads URL parameters to populate the post header
+    //  and loads the Google Doc in the iframe.
+    //
+    //  URL format from blog.html:
+    //  post.html?url=DOC_URL&title=TITLE&author=AUTHOR&date=DATE&category=CAT
+    // =====================================================================
+
+    (function() {
+      var params   = new URLSearchParams(window.location.search);
+      var docUrl   = params.get('url')      || '';
+      var title    = params.get('title')    || 'Blog Post';
+      var author   = params.get('author')   || '';
+      var date     = params.get('date')     || '';
+      var category = params.get('category') || '';
+
+      // Update page title
+      if (title) document.title = title + ' — Aiming High Tutors';
+
+      // Populate header
+      document.getElementById('post-title').textContent = title;
+
+      if (category) {
+        var catEl = document.getElementById('post-category');
+        catEl.textContent  = category;
+        catEl.style.display = 'inline-block';
+      }
+
+      var meta = document.getElementById('post-meta');
+      if (date) {
+        var dateEl = document.createElement('div');
+        dateEl.className = 'post-header__meta-item';
+        dateEl.innerHTML = '📅 <span>' + escHtml(date) + '</span>';
+        meta.appendChild(dateEl);
+      }
+      if (author) {
+        var authorEl = document.createElement('div');
+        authorEl.className = 'post-header__meta-item';
+        authorEl.innerHTML = '✍️ <span>By <strong>' + escHtml(author) + '</strong></span>';
+        meta.appendChild(authorEl);
+      }
+
+      // Load the Google Doc iframe
+      if (!docUrl) {
+        document.getElementById('post-loading').style.display = 'none';
+        document.getElementById('post-error').style.display   = 'block';
+        return;
+      }
+
+      var iframe = document.getElementById('post-iframe');
+      iframe.src = docUrl;
+
+      iframe.addEventListener('load', function() {
+        document.getElementById('post-loading').style.display = 'none';
+        iframe.style.display = 'block';
+
+        // Auto-resize iframe to content height
+        try {
+          var contentHeight = iframe.contentWindow.document.body.scrollHeight;
+          if (contentHeight > 400) iframe.style.height = contentHeight + 'px';
+        } catch(e) {
+          // Cross-origin — use fixed height
+          iframe.style.height = '80vh';
+        }
+      });
+
+      iframe.addEventListener('error', function() {
+        document.getElementById('post-loading').style.display = 'none';
+        document.getElementById('post-error').style.display   = 'block';
+      });
+
+      // Timeout fallback — if iframe takes too long, show error
+      setTimeout(function() {
+        if (iframe.style.display === 'none') {
+          document.getElementById('post-loading').style.display = 'none';
+          iframe.style.display  = 'block';
+          iframe.style.height   = '80vh';
+        }
+      }, 8000);
+
+    })();
+
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+
+</body>
+</html>
