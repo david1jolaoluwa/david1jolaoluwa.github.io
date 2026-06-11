@@ -1067,9 +1067,13 @@
 
 
   <!-- ===================================================================
-  BLOG SECTION — preview cards for blog posts
-  To add a post: copy one .blog-card block and update the text/link.
-  To remove the whole section: delete everything between the <section> tags.
+  BLOG SECTION — DYNAMIC PREVIEW CARDS
+  Shows the 3 most recent published posts from the Blog Sheet tab.
+  Adding a post to the Sheet updates this section automatically.
+
+  TO SET UP:
+  Deploy blog_api.gs as a Web App and replace
+  PASTE_BLOG_API_URL_HERE in the script section below.
   =================================================================== -->
   <section id="blog" class="section section--cream">
     <div class="container">
@@ -1081,62 +1085,43 @@
         revision, and building academic confidence.
       </p>
 
-      <div class="blog-grid">
-
-        <!-- BLOG CARD 1
-        HOW TO ADD AN IMAGE:
-        Replace the .blog-card__image div content with an <img> tag,
-        or change the background to: url('your-image.jpg') center/cover no-repeat
-        -->
-        <div class="blog-card">
-          <div class="blog-card__image"
-            style="background: url('https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-polina-tankilevitch-6929185.jpg') center/cover no-repeat;">
-          </div>
+      <!-- Blog cards injected by JavaScript -->
+      <div id="home-blog-grid" class="blog-grid">
+        <!-- Loading placeholder cards -->
+        <div class="blog-card" id="blog-placeholder-1">
+          <div class="blog-card__image"></div>
           <div class="blog-card__body">
             <p class="blog-card__date">Coming soon</p>
             <p class="blog-card__title">How to Support Your Child Through GCSE Revision</p>
-            <p class="blog-card__excerpt">
-              Practical strategies for parents to create a positive revision
-              environment at home without adding to exam stress.
-            </p>
-            <!-- Change the href to point to your blog post URL -->
-            <a href="#" class="blog-card__link">Read more →</a>
+            <p class="blog-card__excerpt">Practical strategies for parents to create a positive revision environment at home without adding to exam stress.</p>
+            <a href="blog.html" class="blog-card__link">Read more &rarr;</a>
           </div>
         </div>
-
-        <!-- BLOG CARD 2 -->
-        <div class="blog-card">
-          <div class="blog-card__image"
-            style="background: url('https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-karola-g-6958531.jpg') center/cover no-repeat;">
-          </div>
+        <div class="blog-card" id="blog-placeholder-2">
+          <div class="blog-card__image" style="background: url('https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-karola-g-6958531.jpg') center/cover no-repeat;"></div>
           <div class="blog-card__body">
             <p class="blog-card__date">Coming soon</p>
             <p class="blog-card__title">Understanding SATs: A Parent's Guide</p>
-            <p class="blog-card__excerpt">
-              What to expect from KS2 SATs, how they are marked, and how
-              targeted tutoring can make a real difference.
-            </p>
-            <a href="#" class="blog-card__link">Read more →</a>
+            <p class="blog-card__excerpt">What to expect from KS2 SATs, how they are marked, and how targeted tutoring can make a real difference.</p>
+            <a href="blog.html" class="blog-card__link">Read more &rarr;</a>
           </div>
         </div>
-
-        <!-- BLOG CARD 3 -->
-        <div class="blog-card">
-          <div class="blog-card__image"
-            style="background: url('https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-mikhail-nilov-8121107.jpg') center/cover no-repeat;">
-          </div>
+        <div class="blog-card" id="blog-placeholder-3">
+          <div class="blog-card__image" style="background: url('https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-mikhail-nilov-8121107.jpg') center/cover no-repeat;"></div>
           <div class="blog-card__body">
             <p class="blog-card__date">Coming soon</p>
             <p class="blog-card__title">Building Confidence in Young Learners</p>
-            <p class="blog-card__excerpt">
-              Why academic confidence matters as much as grades, and the
-              simple things tutors and parents can do to nurture it.
-            </p>
-            <a href="#" class="blog-card__link">Read more →</a>
+            <p class="blog-card__excerpt">Why academic confidence matters as much as grades, and the simple things tutors and parents can do to nurture it.</p>
+            <a href="blog.html" class="blog-card__link">Read more &rarr;</a>
           </div>
         </div>
-
       </div>
+
+      <!-- View all posts link -->
+      <div style="text-align:center; margin-top:40px;">
+        <a href="blog.html" class="btn">View All Posts</a>
+      </div>
+
     </div>
   </section>
 
@@ -1853,6 +1838,70 @@
 
       });
     });
+
+    /* ------------------------------------------------------------------
+    PART 5 — HOME PAGE BLOG PREVIEW
+    Fetches the 3 most recent published posts from the Blog API and
+    replaces the placeholder cards with live content.
+    If the API fails the placeholder cards remain visible as fallback.
+
+    TO SET UP:
+    Deploy blog_api.gs as a Web App and replace
+    PASTE_BLOG_API_URL_HERE below with your Web App URL.
+    ------------------------------------------------------------------ */
+
+    var BLOG_API_URL = 'https://script.google.com/macros/s/AKfycbyuneqiMrY-ANNUuSCVV_JN240JhCodCRmTIG7x03I8z4F-ac4JhL-dpscdKhBiVNQ/exec';
+
+    var BLOG_CATEGORY_IMAGES = {
+      'GCSE':     'https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-polina-tankilevitch-6929185.jpg',
+      'SATs':     'https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-karola-g-6958531.jpg',
+      'Revision': 'https://raw.githubusercontent.com/david1jolaoluwa/david1jolaoluwa.github.io/main/Website%20Assets/pexels-mikhail-nilov-8121107.jpg'
+    };
+
+    fetch(BLOG_API_URL + '?limit=3')
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data.ok || !data.posts || data.posts.length === 0) return;
+
+        var grid = document.getElementById('home-blog-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        data.posts.forEach(function(post) {
+          var imgUrl = BLOG_CATEGORY_IMAGES[post.category] || BLOG_CATEGORY_IMAGES['GCSE'];
+          var imgStyle = 'background: url(\'' + imgUrl + '\') center/cover no-repeat;';
+
+          var postUrl = 'post.html?url=' + encodeURIComponent(post.docUrl)
+            + '&title='    + encodeURIComponent(post.title)
+            + '&author='   + encodeURIComponent(post.author)
+            + '&date='     + encodeURIComponent(post.date)
+            + '&category=' + encodeURIComponent(post.category);
+
+          var card = document.createElement('div');
+          card.className = 'blog-card';
+          card.innerHTML =
+            '<div class="blog-card__image" style="' + imgStyle + '"></div>' +
+            '<div class="blog-card__body">' +
+              '<p class="blog-card__date">' + escBlog(post.date) + '</p>' +
+              '<p class="blog-card__title">' + escBlog(post.title) + '</p>' +
+              '<p class="blog-card__excerpt">' + escBlog(post.excerpt) + '</p>' +
+              '<a href="' + postUrl + '" class="blog-card__link">Read more &rarr;</a>' +
+            '</div>';
+
+          grid.appendChild(card);
+        });
+      })
+      .catch(function() {
+        // API failed — placeholder cards remain visible, no action needed
+      });
+
+    function escBlog(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
   </script>
 
