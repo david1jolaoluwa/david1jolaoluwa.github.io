@@ -187,3 +187,27 @@ const AH_SHEET = (() => {
 
   return { fetchTab, parseStudentTab, parseOverviewTab, ragClass, ragLabel, confClass, groupByTopic, computeStats, slugify };
 })();
+
+// PATCH: subject filtering added
+const _SUBJECT_PREFIXES = {
+  "ks2 maths":                    ["KS2M-"],
+  "ks2 science":                  ["KS2S-"],
+  "ks3 maths":                    ["KS3M-"],
+  "ks3 science":                  ["KS3S-"],
+  "gcse maths — foundation":      ["GM-F-"],
+  "gcse maths — higher":          ["GM-F-", "GM-H-"],
+  "gcse biology — foundation":    ["GB-F-"],
+  "gcse biology — higher":        ["GB-F-", "GB-H-"],
+  "gcse chemistry — foundation":  ["GC-F-"],
+  "gcse chemistry — higher":      ["GC-F-", "GC-H-"],
+  "gcse physics — foundation":    ["GP-F-"],
+  "gcse physics — higher":        ["GP-F-", "GP-H-"],
+};
+
+AH_SHEET.filterBySubject = function(subtopics, subject) {
+  if (!subject) return subtopics;
+  const key = subject.trim().toLowerCase();
+  const prefixes = _SUBJECT_PREFIXES[key];
+  if (!prefixes) return subtopics; // unknown subject — show all
+  return subtopics.filter(st => prefixes.some(p => st.id.startsWith(p)));
+};
