@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutor Overview — Aiming High Tutors</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231A3C6E'/><text y='24' x='5' font-size='20' font-family='serif'>A</text></svg>">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo">A</div>
+      <div>
+        <div class="nav-name">Aiming High Tutors</div>
+        <div class="nav-badge">Tutor Overview</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button class="btn-nav" onclick="location.reload()">⟳ Refresh</button>
+    </div>
+  </nav>
+
+  <main class="page-wide" id="main">
+
+    <div class="loading" id="loading">
+      <div class="loader"></div>
+      <p class="loading-text">Loading all students…</p>
+    </div>
+
+    <div id="error" style="display:none;">
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">Could not load overview</div>
+        <div class="error-msg" id="error-msg"></div>
+      </div>
+    </div>
+
+    <div id="overview-content" style="display:none;"></div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/sheet.js"></script>
+  <script>
+  (async () => {
+    const cfg = window.AH_CONFIG;
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    function initials(name) {
+      return name.split(" ").map(w => w[0] || "").join("").slice(0,2).toUpperCase();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2500);
+    }
+
+    if (!cfg || cfg.SHEET_ID === "YOUR_SHEET_ID_HERE") {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("error").style.display = "block";
+      document.getElementById("error-msg").textContent =
+        "Sheet ID not configured. Open js/config.js and add your Google Sheet ID.";
+      return;
+    }
+
+    try {
+      // Load overview tab to get student list
+      const ovRows = await AH_SHEET.fetchTab(cfg.SHEET_ID, cfg.OVERVIEW_TAB);
+      const students = AH_SHEET.parseOverviewTab(ovRows);
+
+      if (students.length === 0) {
+        document.getElementById("loading").style.display = "none";
+        const el = document.getElementById("overview-content");
+        el.style.display = "block";
+        el.innerHTML = `
+          <div class="overview-hero">
+            <div class="overview-hero-title">All Students</div>
+            <div class="overview-hero-sub">No students found yet — add student names to the OVERVIEW tab in your Google Sheet.</div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-icon">👤</div>
+            <div class="empty-title">No students yet</div>
+            <div class="empty-msg">Duplicate the STUDENT TEMPLATE tab, name it with your student's name, then add that name to the OVERVIEW tab in column A.</div>
+          </div>`;
+        return;
+      }
+
+      // Fetch each student's tab to get live stats
+      const enriched = await Promise.allSettled(
+        students.map(async (s) => {
+          try {
+            const rows = await AH_SHEET.fetchTab(cfg.SHEET_ID, s.name);
+            const data = AH_SHEET.parseStudentTab(rows);
+            const stats = AH_SHEET.computeStats(data.subtopics);
+            return { ...s, ...stats, subject: data.meta.subject || s.subject, tutor: data.meta.tutor || s.tutor };
+          } catch {
+            return { ...s, pct: 0, confident: 0, developing: 0, notStarted: 0, avgConf: null, lastSession: null };
+          }
+        })
+      );
+
+      const studentData = enriched
+        .filter(r => r.status === "fulfilled")
+        .map(r => r.value);
+
+      // Aggregate stats
+      const totalStudents = studentData.length;
+      const avgPct = totalStudents > 0
+        ? Math.round(studentData.reduce((a,s) => a + s.pct, 0) / totalStudents)
+        : 0;
+      const totalTopics = studentData.reduce((a,s) => a + (s.total || 0), 0);
+
+      // Render
+      const el = document.getElementById("overview-content");
+      el.style.display = "block";
+      el.innerHTML = `
+        <div class="overview-hero">
+          <div class="overview-hero-title">All Students</div>
+          <div class="overview-hero-sub">Live progress across all active students</div>
+          <div class="overview-stats">
+            <div class="ov-stat">
+              <div class="ov-stat-num">${totalStudents}</div>
+              <div class="ov-stat-lbl">Students</div>
+            </div>
+            <div class="ov-stat">
+              <div class="ov-stat-num">${avgPct}%</div>
+              <div class="ov-stat-lbl">Avg completion</div>
+            </div>
+            <div class="ov-stat">
+              <div class="ov-stat-num">${totalTopics}</div>
+              <div class="ov-stat-lbl">Topics tracked</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          ${studentData.map(s => renderStudentCard(s)).join("")}
+        </div>
+
+        <div class="page-footer">
+          <div class="footer-brand">Aiming High Tutors</div>
+          <div class="footer-meta">Updated live · ${new Date().toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</div>
+        </div>
+      `;
+
+      // Animate progress bars
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          document.querySelectorAll(".student-bar-fill").forEach(el => {
+            el.style.width = el.dataset.pct + "%";
+          });
+        }, 100);
+      });
+
+      document.getElementById("loading").style.display = "none";
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("error").style.display = "block";
+      document.getElementById("error-msg").textContent =
+        "Failed to load overview data. Check your Sheet ID and that the sheet is published.";
+    }
+
+    function renderStudentCard(s) {
+      const slug = AH_SHEET.slugify(s.name);
+      const studentUrl = `students/${slug}.html`;
+      return `
+        <a href="${studentUrl}" class="student-card">
+          <div class="student-card-top">
+            <div class="student-avatar">${escHtml(initials(s.name))}</div>
+            <div>
+              <div class="student-card-name">${escHtml(s.name)}</div>
+              <div class="student-card-subject">${escHtml(s.subject || "Subject not set")}</div>
+            </div>
+          </div>
+
+          <div class="student-bar-wrap">
+            <div class="student-bar-label">
+              <span>Confident topics</span>
+              <span style="font-family:'DM Mono',monospace;font-weight:600;color:var(--mint)">${s.pct}%</span>
+            </div>
+            <div class="student-bar-track">
+              <div class="student-bar-fill" data-pct="${s.pct}" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div class="student-rag-row">
+            <span class="rag-tag green">🟢 ${s.confident}</span>
+            <span class="rag-tag amber">🟡 ${s.developing}</span>
+            <span class="rag-tag red">🔴 ${s.notStarted}</span>
+          </div>
+
+          ${s.avgConf ? `<div class="student-last">Avg confidence: ${s.avgConf}/5${s.lastSession ? ` · Last session: ${s.lastSession}` : ""}</div>` : ""}
+          ${!s.avgConf && s.lastSession ? `<div class="student-last">Last session: ${escHtml(s.lastSession)}</div>` : ""}
+        </a>
+      `;
+    }
+  })();
+  </script>
+</body>
+</html>
