@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Progress — Aiming High Tutors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:     #0D2B55;
+    --blue:     #2E75B6;
+    --blue-lt:  #EBF3FB;
+    --bg:       #F7F9FC;
+    --white:    #FFFFFF;
+    --green:    #22C55E;
+    --green-lt: #DCFCE7;
+    --amber:    #F59E0B;
+    --amber-lt: #FEF3C7;
+    --red:      #EF4444;
+    --red-lt:   #FEE2E2;
+    --slate:    #94A3B8;
+    --slate-lt: #F1F5F9;
+    --text:     #1E293B;
+    --muted:    #64748B;
+    --radius:   12px;
+    --shadow:   0 2px 12px rgba(13,43,85,0.08);
+    --shadow-lg:0 8px 32px rgba(13,43,85,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Sticky nav ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--navy);
+    padding: 0 20px;
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .nav-brand {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700; font-size: 14px;
+    color: white; letter-spacing: 0.5px;
+    text-decoration: none;
+  }
+  .nav-brand span { color: #93C5FD; }
+  .nav-meta { font-size: 12px; color: #93C5FD; }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(145deg, var(--navy) 0%, #1A4A8A 100%);
+    padding: 36px 20px 48px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 0%, rgba(46,117,182,0.3) 0%, transparent 60%);
+  }
+  .hero-inner { position: relative; max-width: 680px; margin: 0 auto; }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #93C5FD;
+    margin-bottom: 8px;
+  }
+  .hero-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 8vw, 52px);
+    line-height: 1.1; color: white;
+    margin-bottom: 6px;
+  }
+  .hero-subject {
+    font-size: 15px; color: #CBD5E1; margin-bottom: 32px;
+  }
+
+  /* ── Progress ring ── */
+  .hero-stats {
+    display: flex; align-items: center; gap: 32px;
+    flex-wrap: wrap;
+  }
+  .ring-wrap { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 8; }
+  .ring-fill {
+    fill: none; stroke: #22C55E; stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);
+  }
+  .ring-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .ring-pct {
+    font-size: 24px; font-weight: 700; color: white;
+    line-height: 1;
+  }
+  .ring-sub { font-size: 10px; color: #93C5FD; margin-top: 2px; }
+
+  .hero-pills { display: flex; flex-direction: column; gap: 10px; }
+  .hero-pill {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px;
+  }
+  .pill-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .pill-dot.green { background: var(--green); }
+  .pill-dot.amber { background: var(--amber); }
+  .pill-dot.red   { background: var(--red); }
+  .pill-dot.slate { background: var(--slate); }
+  .pill-count { font-weight: 700; color: white; min-width: 24px; }
+  .pill-label { color: #CBD5E1; }
+
+  /* ── Confidence bar ── */
+  .conf-bar-wrap {
+    margin-top: 20px; padding: 16px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .conf-label { font-size: 11px; color: #93C5FD; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .conf-stars { display: flex; gap: 4px; }
+  .conf-star { font-size: 18px; }
+  .conf-avg { font-size: 13px; color: #CBD5E1; margin-top: 4px; }
+
+  /* ── Main content ── */
+  .main { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* ── Section header ── */
+  .section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    padding: 20px 0 10px;
+    border-top: 1px solid #E2E8F0;
+    margin-top: 8px;
+  }
+  .section-title:first-child { border-top: none; margin-top: 0; }
+
+  /* ── Accordion (topic group) ── */
+  .accordion { margin-bottom: 8px; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+
+  .accordion-header {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--white);
+    border: none; cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .accordion-header:hover { background: var(--blue-lt); }
+  .accordion-header.open { background: var(--blue-lt); }
+
+  .accordion-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--blue-lt); display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .accordion-title { flex: 1; }
+  .accordion-title h3 { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .accordion-title p  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  .accordion-mini-bars { display: flex; gap: 2px; margin-left: auto; }
+  .mini-bar {
+    height: 22px; min-width: 4px; border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .mini-bar.green { background: var(--green); }
+  .mini-bar.amber { background: var(--amber); }
+  .mini-bar.red   { background: var(--red); }
+
+  .accordion-chevron {
+    font-size: 12px; color: var(--muted); transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .accordion-header.open .accordion-chevron { transform: rotate(180deg); }
+
+  .accordion-body {
+    display: none; background: var(--white);
+  }
+  .accordion-body.open { display: block; }
+
+  /* ── Subtopic row ── */
+  .subtopic-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .subtopic-row:last-child { border-bottom: none; }
+
+  .rag-pill {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .rag-pill.confident  { background: var(--green-lt); color: #15803D; }
+  .rag-pill.developing { background: var(--amber-lt); color: #92400E; }
+  .rag-pill.not-started{ background: var(--red-lt);   color: #991B1B; }
+  .rag-pill.not-covered{ background: var(--slate-lt); color: var(--muted); }
+  .rag-pill.higher     { background: #FEF3C7; color: #78350F; border: 1px solid #FCD34D; }
+
+  .subtopic-name { flex: 1; font-size: 13px; color: var(--text); }
+  .subtopic-id   { font-size: 10px; color: var(--slate); font-style: italic; flex-shrink: 0; }
+
+  .conf-badge {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    background: var(--slate-lt); padding: 2px 7px; border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .date-label { font-size: 10px; color: var(--slate); flex-shrink: 0; }
+
+  /* ── Notes chip ── */
+  .notes-chip {
+    display: block; margin: 0 16px 12px;
+    padding: 8px 12px;
+    background: #FFFBEB; border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px; color: #78350F;
+  }
+
+  /* ── Empty / loading ── */
+  .state-card {
+    text-align: center; padding: 60px 20px;
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .state-card .icon { font-size: 48px; margin-bottom: 16px; }
+  .state-card h2 { font-size: 18px; color: var(--navy); margin-bottom: 8px; }
+  .state-card p  { font-size: 14px; color: var(--muted); }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; padding: 24px;
+    font-size: 12px; color: var(--muted);
+    border-top: 1px solid #E2E8F0;
+  }
+
+  /* ── Last updated banner ── */
+  .updated-banner {
+    background: var(--white); border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow); font-size: 13px;
+  }
+  .updated-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ring-fill { transition: none; }
+    .updated-dot { animation: none; }
+  }
+
+  @media (min-width: 500px) {
+    .hero { padding: 48px 32px 56px; }
+    .main { padding: 28px 24px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="index.html">Aiming High <span>Tutors</span></a>
+  <span class="nav-meta" id="nav-meta">Loading…</span>
+</nav>
+
+<div id="app">
+  <div class="hero">
+    <div class="hero-inner" id="hero-inner">
+      <div class="state-card" style="background:transparent;box-shadow:none;">
+        <div class="icon">⏳</div>
+        <h2 style="color:white">Loading progress…</h2>
+        <p style="color:#93C5FD">Fetching latest data from your tracker</p>
+      </div>
+    </div>
+  </div>
+  <div class="main" id="main-content"></div>
+</div>
+
+<footer class="footer">
+  <p>Progress data refreshes automatically from your tutor's tracker.<br>
+  Powered by <strong>Aiming High Tutors</strong> · aiminghightutors.co.uk</p>
+</footer>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────
+// Replace SHEET_ID with your Google Sheet ID
+// Replace SHEET_GID with the published tab GID (from the URL when you publish)
+const CONFIG = {
+  SHEET_ID:  window.SHEET_ID  || 'YOUR_SHEET_ID_HERE',
+  OVERVIEW_GID: window.OVERVIEW_GID || '0',
+  // Each student's sheet tab GID — add entries as you add students
+  // Format: { 'Student Name': 'GID_NUMBER' }
+  STUDENT_GIDS: window.STUDENT_GIDS || {},
+};
+
+// ── Helpers ─────────────────────────────────────────────────────
+const params  = new URLSearchParams(location.search);
+const STUDENT = params.get('student') || params.get('name') || '';
+
+function csvUrl(gid) {
+  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv&gid=${gid}`;
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (let i = 1; i < lines.length; i++) { // skip header row
+    const cols = splitCSVLine(lines[i]);
+    if (cols.length >= 4 && cols[0].trim()) rows.push(cols.map(c => c.trim().replace(/^"|"$/g,'').trim()));
+  }
+  return rows;
+}
+
+function splitCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { inQ = !inQ; continue; }
+    if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; continue; }
+    cur += line[i];
+  }
+  result.push(cur);
+  return result;
+}
+
+function ragClass(val) {
+  if (!val) return 'not-started';
+  if (val.includes('Confident'))    return 'confident';
+  if (val.includes('Developing'))   return 'developing';
+  if (val.includes('Not Yet'))      return 'not-started';
+  if (val.includes('Not Covered'))  return 'not-covered';
+  return 'not-started';
+}
+
+function ragLabel(val) {
+  if (!val || val.includes('Not Yet')) return '🔴 Not Yet Started';
+  if (val.includes('Confident'))       return '🟢 Confident';
+  if (val.includes('Developing'))      return '🟡 Developing';
+  if (val.includes('Not Covered'))     return '⬜ Not Covered';
+  return val;
+}
+
+function starStr(score) {
+  const n = parseInt(score) || 0;
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+// Topic icons by keyword
+function topicIcon(name) {
+  const n = name.toLowerCase();
+  if (n.includes('number') || n.includes('arithmetic')) return '🔢';
+  if (n.includes('algebra')) return '🔣';
+  if (n.includes('geometry') || n.includes('shape') || n.includes('angle')) return '📐';
+  if (n.includes('statistic') || n.includes('data')) return '📊';
+  if (n.includes('probability')) return '🎲';
+  if (n.includes('ratio') || n.includes('proportion')) return '⚖️';
+  if (n.includes('biology') || n.includes('cell') || n.includes('life')) return '🧬';
+  if (n.includes('chemistry') || n.includes('atom') || n.includes('chemical')) return '⚗️';
+  if (n.includes('physics') || n.includes('force') || n.includes('energy') || n.includes('wave')) return '⚡';
+  if (n.includes('space') || n.includes('planet')) return '🪐';
+  if (n.includes('electric')) return '🔌';
+  if (n.includes('plant') || n.includes('photosyn')) return '🌿';
+  if (n.includes('measurement') || n.includes('measure')) return '📏';
+  if (n.includes('sequence')) return '🔄';
+  if (n.includes('graph') || n.includes('coordinate')) return '📈';
+  return '📚';
+}
+
+// ── Main render ─────────────────────────────────────────────────
+async function loadStudent() {
+  if (!STUDENT) {
+    showError('No student specified', 'Add ?student=Name to the URL, e.g. student.html?student=Amira');
+    return;
+  }
+
+  const gid = CONFIG.STUDENT_GIDS[STUDENT];
+  if (!gid) {
+    showError(`"${STUDENT}" not found`, 'Check the student name matches the sheet tab exactly, and that their GID is added to config.js');
+    return;
+  }
+
+  let rows;
+  try {
+    const res = await fetch(csvUrl(gid));
+    if (!res.ok) throw new Error('Sheet not published or GID incorrect');
+    const text = await res.text();
+    rows = parseCSV(text);
+  } catch (e) {
+    showError('Could not load data', `${e.message}. Make sure the sheet tab is published to the web.`);
+    return;
+  }
+
+  // Rows: [topic, subtopicId, subtopicName, rag, confidence, date, notes]
+  // Map from student sheet columns:
+  // Col A = Topic (col 0), B = ID (1), C = Name (2), D = RAG (3), E = Conf (4), F = Date (5), G = Notes (6)
+  // The first 8 rows of the sheet are header/info rows — we skip anything without a valid subtopic ID
+  const data = rows.filter(r => r[1] && r[1].match(/^[A-Z]/)); // subtopic IDs start with letter
+
+  if (!data.length) {
+    showError('No topic data found', 'Make sure the sheet tab is the student tab and has been filled in.');
+    return;
+  }
+
+  // Read student info from first info rows (rows 2–5 of the sheet)
+  // These come through before our filter — let's re-parse header rows
+  const allRaw = rows;
+  let studentName = STUDENT;
+  let subject = '';
+  let tutor = '';
+  let lastUpdated = '';
+
+  // Try to find info rows (they have labels in col 0 like "Student Name:")
+  for (const r of allRaw) {
+    if (r[0] && r[0].includes('Student Name')) studentName = r[1] || STUDENT;
+    if (r[0] && r[0].includes('Subject'))      subject     = r[1] || '';
+    if (r[0] && r[0].includes('Tutor'))        tutor       = r[1] || '';
+  }
+
+  // Compute stats
+  const total     = data.filter(r => !r[3].includes('Not Covered')).length;
+  const confident = data.filter(r => r[3].includes('Confident')).length;
+  const developing= data.filter(r => r[3].includes('Developing')).length;
+  const notStarted= data.filter(r => r[3].includes('Not Yet') || !r[3]).length;
+  const notCovered= data.filter(r => r[3].includes('Not Covered')).length;
+  const pct       = total > 0 ? Math.round((confident / total) * 100) : 0;
+
+  const scores = data.map(r => parseInt(r[4])).filter(n => !isNaN(n) && n > 0);
+  const avgConf = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : null;
+
+  const dates = data.map(r => r[5]).filter(Boolean);
+  if (dates.length) lastUpdated = dates.sort().reverse()[0];
+
+  // Update nav
+  document.getElementById('nav-meta').textContent =
+    lastUpdated ? `Updated ${lastUpdated}` : 'In progress';
+
+  // ── Hero ──────────────────────────────────────────────────────
+  const circumference = 283;
+  const offset = circumference - (pct / 100) * circumference;
+
+  document.getElementById('hero-inner').innerHTML = `
+    <div class="hero-eyebrow">Student Progress Report</div>
+    <h1 class="hero-name">${escHtml(studentName)}</h1>
+    <p class="hero-subject">${escHtml(subject)}${tutor ? ` · Tutor: ${escHtml(tutor)}` : ''}</p>
+
+    <div class="hero-stats">
+      <div class="ring-wrap">
+        <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+          <circle class="ring-bg" cx="55" cy="55" r="45"/>
+          <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="45"
+            style="stroke-dashoffset:${circumference}"/>
+        </svg>
+        <div class="ring-label">
+          <span class="ring-pct" id="ring-pct">0%</span>
+          <span class="ring-sub">confident</span>
+        </div>
+      </div>
+
+      <div class="hero-pills">
+        <div class="hero-pill">
+          <span class="pill-dot green"></span>
+          <span class="pill-count">${confident}</span>
+          <span class="pill-label">Confident</span>
+        </div>
+        <div class="hero-pill">
+          <span class="pill-dot amber"></span>
+          <span class="pill-count">${developing}</span>
+          <span class="pill-label">Developing</span>
+        </div>
+        <div class="hero-pill">
+          <span class="pill-dot red"></span>
+          <span class="pill-count">${notStarted}</span>
+          <span class="pill-label">Not yet started</span>
+        </div>
+        ${notCovered ? `<div class="hero-pill">
+          <span class="pill-dot slate"></span>
+          <span class="pill-count">${notCovered}</span>
+          <span class="pill-label">Not covered</span>
+        </div>` : ''}
+      </div>
+    </div>
+
+    ${avgConf ? `
+    <div class="conf-bar-wrap">
+      <div class="conf-label">Average Confidence</div>
+      <div class="conf-stars">${[1,2,3,4,5].map(i =>
+        `<span class="conf-star" style="color:${parseFloat(avgConf)>=i?'#FCD34D':'rgba(255,255,255,0.2)'}">${parseFloat(avgConf)>=i?'★':'☆'}</span>`
+      ).join('')}</div>
+      <div class="conf-avg">${avgConf} / 5 across ${scores.length} scored topic${scores.length!==1?'s':''}</div>
+    </div>` : ''}
+  `;
+
+  // Animate ring
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const ring = document.getElementById('ring-fill');
+      if (ring) ring.style.strokeDashoffset = offset;
+      animateCount('ring-pct', 0, pct, 1200, v => v + '%');
+    }, 100);
+  });
+
+  // ── Topic groups ──────────────────────────────────────────────
+  const groups = {};
+  for (const r of data) {
+    const topic = r[0] || 'General';
+    if (!groups[topic]) groups[topic] = [];
+    groups[topic].push(r);
+  }
+
+  let html = '';
+  if (lastUpdated) {
+    html += `<div class="updated-banner">
+      <span class="updated-dot"></span>
+      <span>Last session recorded: <strong>${lastUpdated}</strong></span>
+    </div>`;
+  }
+
+  for (const [topic, items] of Object.entries(groups)) {
+    const g_conf = items.filter(r => r[3].includes('Confident')).length;
+    const g_dev  = items.filter(r => r[3].includes('Developing')).length;
+    const g_ns   = items.filter(r => r[3].includes('Not Yet') || !r[3]).length;
+    const g_total = items.filter(r => !r[3].includes('Not Covered')).length;
+    const g_pct = g_total > 0 ? Math.round((g_conf / g_total) * 100) : 0;
+
+    const barWidth = 48; // total mini bar width px
+    const bG = g_total > 0 ? Math.round((g_conf / g_total) * barWidth) : 0;
+    const bA = g_total > 0 ? Math.round((g_dev  / g_total) * barWidth) : 0;
+    const bR = Math.max(0, barWidth - bG - bA);
+
+    html += `
+    <div class="accordion" data-topic="${escHtml(topic)}">
+      <button class="accordion-header" onclick="toggleAccordion(this)">
+        <div class="accordion-icon">${topicIcon(topic)}</div>
+        <div class="accordion-title">
+          <h3>${escHtml(topic)}</h3>
+          <p>${g_conf}/${g_total} confident · ${g_pct}% done</p>
+        </div>
+        <div class="accordion-mini-bars">
+          ${bG > 0 ? `<div class="mini-bar green" style="width:${bG}px"></div>` : ''}
+          ${bA > 0 ? `<div class="mini-bar amber" style="width:${bA}px"></div>` : ''}
+          ${bR > 0 ? `<div class="mini-bar red"   style="width:${bR}px"></div>` : ''}
+        </div>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        ${items.map(r => {
+          const isHigher = r[2] && r[2].startsWith('★');
+          const cls = ragClass(r[3]);
+          const lbl = ragLabel(r[3]);
+          const name = r[2] ? r[2].replace(/^★\s*/,'') : r[1];
+          const notes = r[6] && r[6].trim();
+          return `
+          <div class="subtopic-row">
+            <span class="rag-pill ${cls}">${lbl}</span>
+            <span class="subtopic-name">${escHtml(name)}${isHigher ? ' <span style="color:#F59E0B;font-size:10px">★H</span>' : ''}</span>
+            ${r[4] ? `<span class="conf-badge">${r[4]}/5</span>` : ''}
+            ${r[5] ? `<span class="date-label">${r[5]}</span>` : ''}
+          </div>
+          ${notes ? `<span class="notes-chip">📝 ${escHtml(notes)}</span>` : ''}`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function toggleAccordion(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+
+function animateCount(id, from, to, dur, fmt = v => v) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(Math.round(from + (to - from) * ease));
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showError(title, msg) {
+  document.getElementById('hero-inner').innerHTML = `
+    <div class="hero-eyebrow">Aiming High Tutors</div>
+    <h1 class="hero-name">Progress Dashboard</h1>`;
+  document.getElementById('main-content').innerHTML = `
+    <div class="state-card">
+      <div class="icon">⚠️</div>
+      <h2>${escHtml(title)}</h2>
+      <p>${escHtml(msg)}</p>
+    </div>`;
+}
+
+loadStudent();
+</script>
+</body>
+</html>
