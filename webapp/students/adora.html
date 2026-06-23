@@ -323,6 +323,9 @@
         const rows = await AH_SHEET.fetchTab(cfg.SHEET_ID, studentName);
         const data = AH_SHEET.parseStudentTab(rows);
 
+        // Filter topics to only those matching the student's subject
+        data.subtopics = AH_SHEET.filterBySubject(data.subtopics, data.meta.subject);
+
         // If name not set in meta, use URL slug
         if (!data.meta.name) data.meta.name = studentName;
 
