@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Progress — Aiming High Tutors</title>
+  <meta name="description" content="Student progress dashboard — Aiming High Tutors">
+  <!-- Prevent search engine indexing of student pages -->
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="../css/style.css">
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231A3C6E'/><text y='24' x='5' font-size='20' font-family='serif'>A</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="../index.html" class="nav-brand">
+      <div class="nav-logo">A</div>
+      <div>
+        <div class="nav-name">Aiming High Tutors</div>
+        <div class="nav-badge">Student Progress</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button class="btn-nav" onclick="window.print()">🖨 Print</button>
+      <button class="btn-nav" onclick="AH_APP.share()" id="share-btn">⬆ Share</button>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="page" id="main">
+
+    <!-- Loading state -->
+    <div class="loading" id="loading">
+      <div class="loader"></div>
+      <p class="loading-text">Loading progress data…</p>
+    </div>
+
+    <!-- Error state (hidden by default) -->
+    <div id="error" style="display:none;">
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">Couldn't load progress data</div>
+        <div class="error-msg" id="error-msg">Please check your connection and try again.</div>
+      </div>
+    </div>
+
+    <!-- Dashboard (populated by JS) -->
+    <div id="dashboard" style="display:none;"></div>
+
+  </main>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/sheet.js"></script>
+  <script>
+  /* ── Student page app ──────────────────────────────────────── */
+  const AH_APP = (() => {
+
+    // Get student tab name from URL: /students/amira.html → "Amira"
+    function getStudentName() {
+      const path = window.location.pathname;
+      const file = path.split("/").pop().replace(".html", "");
+      // Also check query param ?student=name for flexibility
+      const params = new URLSearchParams(window.location.search);
+      const param = params.get("student");
+      if (param) return param;
+      return file.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    }
+
+    // Topic icons by subject area
+    const TOPIC_ICONS = {
+      "number": "🔢", "algebra": "🔣", "geometry": "📐", "ratio": "⚖️",
+      "probability": "🎲", "statistics": "📊", "biology": "🧬",
+      "chemistry": "⚗️", "physics": "⚛️", "cell": "🔬", "forces": "🏋️",
+      "energy": "⚡", "waves": "🌊", "electricity": "🔋", "magnetism": "🧲",
+      "space": "🚀", "earth": "🌍", "evolution": "🦕", "genetics": "🧬",
+      "measurement": "📏", "data": "📈", "materials": "🔩",
+      "organic": "🧪", "atomic": "⚛️", "particle": "🔮",
+    };
+
+    function topicIcon(topicName) {
+      const lower = topicName.toLowerCase();
+      for (const [key, icon] of Object.entries(TOPIC_ICONS)) {
+        if (lower.includes(key)) return icon;
+      }
+      return "📚";
+    }
+
+    // Render the full dashboard
+    function render(data) {
+      const { meta, subtopics } = data;
+      const stats = AH_SHEET.computeStats(subtopics);
+      const groups = AH_SHEET.groupByTopic(subtopics);
+
+      // Update page title
+      document.title = `${meta.name || "Student"} — Aiming High Tutors`;
+
+      // Completion ring circumference
+      const CIRCUM = 283;
+      const offset = CIRCUM - (CIRCUM * stats.pct / 100);
+
+      // Build HTML
+      const dash = document.getElementById("dashboard");
+      dash.innerHTML = `
+        <!-- Hero Card -->
+        <div class="hero-card">
+          <div class="hero-top">
+            <div class="hero-info">
+              <div class="hero-label">Student Progress Report</div>
+              <div class="hero-name">${escHtml(meta.name || "Student")}</div>
+              <div class="hero-subject">
+                <strong>${escHtml(meta.subject || "")}</strong>
+                ${meta.tutor ? ` · Tutor: ${escHtml(meta.tutor)}` : ""}
+                ${meta.startDate ? ` · Started ${escHtml(meta.startDate)}` : ""}
+              </div>
+            </div>
+            <div class="ring-wrap">
+              <div class="ring-container">
+                <svg class="ring-svg" viewBox="0 0 100 100">
+                  <circle class="ring-track" cx="50" cy="50" r="45"/>
+                  <circle class="ring-progress ${stats.pct < 30 ? 'developing' : ''}"
+                    cx="50" cy="50" r="45"
+                    id="ring-arc"
+                    style="stroke-dashoffset: ${CIRCUM}"/>
+                </svg>
+                <div class="ring-center">
+                  <div class="ring-pct" id="ring-pct">0%</div>
+                  <div class="ring-pct-label">done</div>
+                </div>
+              </div>
+              <div class="ring-label">Confident</div>
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-pill green">
+              <div class="stat-num">${stats.confident}</div>
+              <div class="stat-lbl">🟢 Confident</div>
+            </div>
+            <div class="stat-pill amber">
+              <div class="stat-num">${stats.developing}</div>
+              <div class="stat-lbl">🟡 Developing</div>
+            </div>
+            <div class="stat-pill red">
+              <div class="stat-num">${stats.notStarted}</div>
+              <div class="stat-lbl">🔴 Not Started</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-num">${stats.avgConf || "—"}</div>
+              <div class="stat-lbl">Avg Confidence</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-num">${stats.total}</div>
+              <div class="stat-lbl">Total Topics</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta strip -->
+        <div class="meta-strip">
+          ${stats.lastSession ? `<div class="meta-item"><span class="meta-dot"></span>Last session: ${escHtml(stats.lastSession)}</div>` : ""}
+          <div class="meta-item"><span class="meta-dot"></span>${stats.total} topics tracked</div>
+          ${meta.subject ? `<div class="meta-item"><span class="meta-dot"></span>${escHtml(meta.subject)}</div>` : ""}
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mint)"></span> Confident — fully understood</div>
+          <div class="legend-item"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--amber)"></span> Developing — needs more practice</div>
+          <div class="legend-item"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--rose)"></span> Not yet started</div>
+          <div class="legend-item"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--border)"></span> Not covered this term</div>
+        </div>
+
+        <!-- Topics -->
+        <div class="section-title">Topic Breakdown</div>
+        <div id="topic-list">
+          ${renderTopics(groups)}
+        </div>
+
+        <!-- Footer -->
+        <div class="page-footer">
+          <div class="footer-brand">Aiming High Tutors</div>
+          <div class="footer-meta">Updated live · ${new Date().toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</div>
+        </div>
+      `;
+
+      // Animate ring after paint
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const arc = document.getElementById("ring-arc");
+          if (arc) arc.style.strokeDashoffset = offset;
+          const pctEl = document.getElementById("ring-pct");
+          if (pctEl) animateCount(pctEl, 0, stats.pct, 1200, v => `${v}%`);
+        }, 100);
+      });
+
+      // Wire up accordion toggles
+      document.querySelectorAll(".topic-header").forEach(hdr => {
+        hdr.addEventListener("click", () => {
+          const grp = hdr.closest(".topic-group");
+          grp.classList.toggle("open");
+        });
+      });
+
+      // Auto-open first topic group
+      const firstGroup = document.querySelector(".topic-group");
+      if (firstGroup) firstGroup.classList.add("open");
+    }
+
+    function renderTopics(groups) {
+      let html = "";
+      for (const [topic, subtopics] of groups) {
+        const green = subtopics.filter(s => AH_SHEET.ragClass(s.rag) === "green").length;
+        const amber = subtopics.filter(s => AH_SHEET.ragClass(s.rag) === "amber").length;
+        const red   = subtopics.filter(s => AH_SHEET.ragClass(s.rag) === "red").length;
+        const total = subtopics.filter(s => !s.rag.toLowerCase().includes("not covered")).length;
+        const pct   = total > 0 ? Math.round((green / total) * 100) : 0;
+        const icon  = topicIcon(topic);
+
+        // Mini dots — up to 8
+        const sample = subtopics.slice(0, 8);
+        const miniDots = sample.map(s =>
+          `<span class="mini-dot ${AH_SHEET.ragClass(s.rag)}"></span>`
+        ).join("");
+
+        html += `
+          <div class="topic-group">
+            <div class="topic-header">
+              <div class="topic-header-left">
+                <div class="topic-icon">${icon}</div>
+                <div class="topic-name">${escHtml(topic)}</div>
+              </div>
+              <div class="topic-header-right">
+                <div class="mini-bar">${miniDots}</div>
+                <span class="topic-count">${green}/${total}</span>
+                <span class="chevron">▾</span>
+              </div>
+            </div>
+            <div class="topic-progress-bar">
+              <div class="topic-progress-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="topic-body">
+              ${subtopics.map(renderSubtopic).join("")}
+            </div>
+          </div>
+        `;
+      }
+      return html || `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">No topics loaded</div><div class="empty-msg">Check the student tab name matches the sheet.</div></div>`;
+    }
+
+    function renderSubtopic(st) {
+      const rc = AH_SHEET.ragClass(st.rag);
+      const cc = AH_SHEET.confClass(st.conf);
+      return `
+        <div class="subtopic-row">
+          <span class="rag-dot ${rc}"></span>
+          <div>
+            <span class="subtopic-name">${escHtml(st.name)}</span>
+            ${st.isHigher ? ' <span class="subtopic-higher">★ Higher</span>' : ""}
+            ${st.notes ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px">📝 ${escHtml(st.notes)}</div>` : ""}
+          </div>
+          <span class="subtopic-date">${escHtml(st.date || "")}</span>
+          <span class="conf-badge ${cc}">${st.conf > 0 ? st.conf + "/5" : ""}</span>
+        </div>
+      `;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+
+    function animateCount(el, from, to, duration, formatter) {
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+        el.textContent = formatter(Math.round(from + (to - from) * ease));
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function showToast(msg, duration = 2500) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), duration);
+    }
+
+    async function share() {
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: document.title, url: window.location.href });
+        } else {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast("Link copied to clipboard ✓");
+        }
+      } catch {}
+    }
+
+    // ── Boot ────────────────────────────────────────────────────
+    async function init() {
+      const cfg = window.AH_CONFIG;
+      if (!cfg || cfg.SHEET_ID === "YOUR_SHEET_ID_HERE") {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("error").style.display = "block";
+        document.getElementById("error-msg").textContent =
+          "Sheet ID not configured. Open js/config.js and enter your Google Sheet ID.";
+        return;
+      }
+
+      const studentName = getStudentName();
+
+      try {
+        const rows = await AH_SHEET.fetchTab(cfg.SHEET_ID, studentName);
+        const data = AH_SHEET.parseStudentTab(rows);
+
+        // If name not set in meta, use URL slug
+        if (!data.meta.name) data.meta.name = studentName;
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        render(data);
+      } catch (err) {
+        console.error(err);
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("error").style.display = "block";
+        document.getElementById("error-msg").textContent =
+          `Could not load tab "${studentName}". Make sure the sheet is published and the tab name matches exactly.`;
+      }
+    }
+
+    return { init, share };
+  })();
+
+  AH_APP.init();
+  </script>
+</body>
+</html>
