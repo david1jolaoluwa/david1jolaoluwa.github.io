@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aiming High Tutors — Student Progress</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231A3C6E'/><text y='24' x='5' font-size='20' font-family='serif'>A</text></svg>">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo">A</div>
+      <div>
+        <div class="nav-name">Aiming High Tutors</div>
+        <div class="nav-badge">Progress Tracker</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="overview.html" class="btn-nav">Tutor Overview</a>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- Hero -->
+    <div class="hero-card" style="margin-top:2rem;">
+      <div class="hero-top" style="flex-direction:column;gap:0.75rem;">
+        <div class="hero-label">Welcome to</div>
+        <div class="hero-name" style="font-size:clamp(1.75rem,5vw,2.5rem)">Aiming High<br>Progress Tracker</div>
+        <div class="hero-subject" style="max-width:420px;line-height:1.6">
+          Track student progress across KS2, KS3 and GCSE Mathematics and Science.
+          Real-time updates from your Google Sheet, beautifully presented for parents.
+        </div>
+      </div>
+      <div class="hero-stats" style="margin-top:2rem;">
+        <div class="stat-pill">
+          <div class="stat-num">12</div>
+          <div class="stat-lbl">Subjects</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-num">239</div>
+          <div class="stat-lbl">Topics</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-num">F+H</div>
+          <div class="stat-lbl">Foundation & Higher</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to use -->
+    <div class="section-title" style="margin-top:2.5rem;">How to use this system</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:2rem;">
+
+      <div class="topic-group">
+        <div class="topic-header" style="cursor:default;">
+          <div class="topic-header-left">
+            <div class="topic-icon">1️⃣</div>
+            <div class="topic-name">Set up your Google Sheet</div>
+          </div>
+        </div>
+        <div class="topic-body" style="display:block;padding:1rem 1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          Open the <strong>AimingHigh_StudentTracker.xlsx</strong> file you downloaded and import it into Google Sheets.
+          Then go to <strong>File → Share → Publish to web</strong>, publish the whole document, and copy the Sheet ID from your URL.
+        </div>
+      </div>
+
+      <div class="topic-group">
+        <div class="topic-header" style="cursor:default;">
+          <div class="topic-header-left">
+            <div class="topic-icon">2️⃣</div>
+            <div class="topic-name">Add your Sheet ID to config.js</div>
+          </div>
+        </div>
+        <div class="topic-body" style="display:block;padding:1rem 1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          Open <code style="background:var(--parchment);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;">js/config.js</code>
+          and replace <code style="background:var(--parchment);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;">YOUR_SHEET_ID_HERE</code>
+          with the ID from your Google Sheet URL. Push to GitHub and the site will update instantly.
+        </div>
+      </div>
+
+      <div class="topic-group">
+        <div class="topic-header" style="cursor:default;">
+          <div class="topic-header-left">
+            <div class="topic-icon">3️⃣</div>
+            <div class="topic-name">Add a student</div>
+          </div>
+        </div>
+        <div class="topic-body" style="display:block;padding:1rem 1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          Duplicate the <strong>👤 STUDENT TEMPLATE</strong> tab in your Sheet. Rename it with the student's name (e.g. <em>Amira</em>).
+          Then create a matching HTML file in the <code style="background:var(--parchment);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;">students/</code>
+          folder by copying <code style="background:var(--parchment);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;">template.html</code> and renaming it <code style="background:var(--parchment);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;">amira.html</code>.
+          The page auto-reads the sheet tab with the matching name.
+        </div>
+      </div>
+
+      <div class="topic-group">
+        <div class="topic-header" style="cursor:default;">
+          <div class="topic-header-left">
+            <div class="topic-icon">4️⃣</div>
+            <div class="topic-name">Share with parents</div>
+          </div>
+        </div>
+        <div class="topic-body" style="display:block;padding:1rem 1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          Send parents the link to their child's page — e.g.
+          <code style="background:var(--parchment);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;">david1jolaoluwa.github.io/students/amira</code>.
+          The page updates live every time you update the Google Sheet. No login needed for parents.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tutor link -->
+    <div style="text-align:center;margin:2rem 0;">
+      <a href="overview.html" style="
+        display:inline-flex;align-items:center;gap:8px;
+        background:var(--navy);color:white;
+        padding:12px 28px;border-radius:var(--radius-md);
+        font-size:14px;font-weight:600;text-decoration:none;
+        font-family:'Inter',sans-serif;
+        box-shadow:var(--shadow-md);
+        transition:background 200ms;
+      " onmouseover="this.style.background='#112750'" onmouseout="this.style.background='var(--navy)'">
+        View Tutor Overview →
+      </a>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-brand">Aiming High Tutors</div>
+      <div class="footer-meta">Curriculum sourced from gov.uk statutory documents</div>
+    </div>
+
+  </main>
+
+</body>
+</html>
