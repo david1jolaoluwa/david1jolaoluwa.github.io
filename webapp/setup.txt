@@ -1,0 +1,141 @@
+# AIMING HIGH TUTORS — Progress Tracker Web App
+# SETUP INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════
+
+## FILES IN THIS PACKAGE
+
+  webapp/
+  ├── index.html              ← Landing page
+  ├── overview.html           ← Tutor overview (all students)
+  ├── css/
+  │   └── style.css           ← All styles
+  ├── js/
+  │   ├── config.js           ← ⚠️ YOU MUST EDIT THIS FIRST
+  │   └── sheet.js            ← Data fetching engine (do not edit)
+  └── students/
+      └── template.html       ← Copy this for each new student
+
+
+## STEP 1 — IMPORT THE GOOGLE SHEET
+
+  1. Go to sheets.google.com
+  2. Click "Blank spreadsheet"
+  3. File → Import → Upload → select AimingHigh_StudentTracker.xlsx
+  4. Choose "Replace spreadsheet" → Import data
+  5. You now have the 4-tab sheet ready to use
+
+
+## STEP 2 — PUBLISH THE GOOGLE SHEET
+
+  1. In Google Sheets: File → Share → Publish to web
+  2. Under "Link", select "Entire Document"
+  3. Under "Embed", change to "Comma-separated values (.csv)"
+  4. Click "Publish" → confirm
+  5. Copy your Sheet URL — it looks like:
+     https://docs.google.com/spreadsheets/d/1ABC123xyz.../edit
+  6. Copy the ID between /d/ and /edit:
+     Example ID: 1ABC123xyz...
+
+
+## STEP 3 — ADD YOUR SHEET ID TO THE APP
+
+  1. Open js/config.js
+  2. Replace YOUR_SHEET_ID_HERE with your actual Sheet ID
+  3. Also update TUTOR_NAME and BASE_URL if needed
+
+  Example:
+    SHEET_ID: "1_sebr2C4WqBQakGRjdXuZ8RQuQLtCn4EE9NwVGTtwa8",
+    TUTOR_NAME: "Aiming High Tutors",
+    BASE_URL: "https://david1jolaoluwa.github.io",
+
+
+## STEP 4 — DEPLOY TO GITHUB PAGES
+
+  Option A — Add to your existing GitHub Pages repo:
+  1. Copy the entire webapp/ folder into your repo
+  2. Commit and push
+  3. The app will be live at:
+     https://david1jolaoluwa.github.io/webapp/
+
+  Option B — Put files at root:
+  1. Copy index.html, overview.html, css/, js/, students/ to root
+  2. Commit and push
+  3. Live at: https://david1jolaoluwa.github.io/
+
+
+## STEP 5 — ADD YOUR FIRST STUDENT
+
+  In Google Sheets:
+  1. Right-click "👤 STUDENT TEMPLATE" tab → Duplicate
+  2. Rename the tab to the student's first name (e.g. "Amira")
+  3. Fill in the 4 yellow cells at the top
+  4. Add the student's name to the OVERVIEW tab (column A)
+
+  In the web app:
+  1. Copy students/template.html
+  2. Rename it to match the student's name in lowercase with hyphens:
+     e.g. "Amira Hassan" → amira-hassan.html
+     OR just first name → amira.html  (must match the Sheet tab name)
+  3. Push to GitHub
+
+  Parent URL:
+    https://david1jolaoluwa.github.io/students/amira.html
+
+
+## UPDATING PROGRESS (after each session)
+
+  1. Open your Google Sheet
+  2. Go to the student's tab
+  3. Update RAG dropdowns and Confidence scores for topics covered
+  4. Parent dashboard updates automatically within ~1 minute
+
+
+## ADDING MORE STUDENTS (takes ~2 minutes)
+
+  Sheet: Duplicate template tab → rename → fill in yellow cells → add to OVERVIEW tab
+  App:   Copy template.html → rename → push to GitHub
+  Done.
+
+
+## URL STRUCTURE
+
+  Home / setup guide:    /index.html
+  Tutor overview:        /overview.html
+  Student dashboard:     /students/[name].html
+
+  Examples:
+    /students/amira.html
+    /students/james-taylor.html
+
+
+## TROUBLESHOOTING
+
+  "Couldn't load data"
+  → Check Sheet is published (File → Share → Publish to web)
+  → Check SHEET_ID in config.js matches your sheet exactly
+  → Check the student tab name matches the HTML filename exactly
+
+  "No topics showing"
+  → The student tab name must match EXACTLY (case-sensitive)
+  → Make sure the template was duplicated, not created fresh
+
+  RAG dropdowns not working in Sheets
+  → Google Sheets preserves Excel data validation but may need
+    re-applying — use the dropdown in column D directly
+
+  Page showing blank
+  → Open browser console (F12) and check for error messages
+  → Most common cause: Sheet not published publicly
+
+
+## CHANGELOG
+
+  v1.0 — Initial release
+  - 12 subjects, 239 topics loaded from gov.uk statutory documents
+  - Foundation/Higher split for all GCSE subjects
+  - Animated completion ring on student pages
+  - RAG traffic light system with confidence scores
+  - Collapsible topic accordion
+  - Tutor overview with live stats per student
+  - Mobile-first responsive design
+  - Print-friendly layout
